@@ -1,51 +1,23 @@
-name: Hippocampus Runtime Alpha checks
+name: Private bounded Windows timing diagnosis (not a release gate)
 on:
   push:
-  pull_request:
-  workflow_dispatch:
+    branches: [codex/ci-timing-diagnostics]
 permissions:
   contents: read
 jobs:
-  tests:
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+  windows-diagnosis:
+    runs-on: windows-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7 (peeled commit)
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
         with:
           version: '0.12.1'
           enable-cache: false
-      - name: Install the exact cross-platform Python build
-        run: uv python install 3.12.13 --no-bin --no-registry
-      - name: Install locked development dependencies
-        run: uv sync --locked --python 3.12.13 --link-mode=copy
-      - name: Record tested commit and require the exact interpreter
-        run: |
-          git rev-parse HEAD
-          uv run --no-sync python -c "import platform, sys; assert sys.version_info[:3] == (3, 12, 13); print(platform.platform()); print(sys.version)"
-      - name: Windows public suite (synthetic; no host or model)
-        if: runner.os == 'Windows'
-        run: uv run --no-sync pytest -q -rs
-      - name: Linux local core (Windows-only injection is not certified)
-        if: runner.os == 'Linux'
-        shell: bash
-        run: uv run --no-sync pytest -q -rs $(cat tests/linux-core.txt)
-      - name: Tracked files and reachable history privacy checks
-        run: uv run --no-sync python scripts/check_release.py --history
-      - name: Build licensed wheel and source distribution
-        run: uv build --no-sources
-      - name: Record build artifact SHA-256 in the job log
-        run: uv run --no-sync python -c "import hashlib; from pathlib import Path; files = [Path('dist') / name for name in ('codex_memory_runtime-0.1.0a1-py3-none-any.whl', 'codex_memory_runtime-0.1.0a1.tar.gz')]; [print(hashlib.sha256(p.read_bytes()).hexdigest(), p.name) for p in files]"
-      - name: Replace editable package with built wheel (offline)
-        run: uv pip install --reinstall --no-index --no-deps --link-mode=copy dist/codex_memory_runtime-0.1.0a1-py3-none-any.whl
-      - name: Require the actual installed wheel, not checkout imports
-        run: uv run --no-sync python -c "from pathlib import Path; import codex_memory; assert 'site-packages' in Path(codex_memory.__file__).resolve().parts; assert codex_memory.__version__ == '0.1.0a1'"
-      - name: Installed-wheel repair regressions
-        run: uv run --no-sync pytest -q -rs tests/test_package_smoke.py tests/test_blind_report_regressions.py
+      - run: uv python install 3.12.13 --no-bin --no-registry
+      - run: uv sync --locked --python 3.12.13 --link-mode=copy
+      - name: Same fixed nodes, system-temp then runner-temp, once each
+        run: uv run --no-sync python -B scripts/diagnose_windows_ci.py

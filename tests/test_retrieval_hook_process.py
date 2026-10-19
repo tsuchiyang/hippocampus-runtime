@@ -154,6 +154,7 @@ expected_dense_fingerprint = "{AUDITED_DENSE_FINGERPRINT}"
 
 def test_real_hook_subprocess_observes_shared_shadow_deadline_at_process_boundary(
     tmp_path: Path,
+    request: pytest.FixtureRequest,
 ) -> None:
     """The installed Hook process must return on its budget, not only its Future."""
     executable = shutil.which("codex-memory-hook")
@@ -295,6 +296,9 @@ def test_real_hook_subprocess_observes_shared_shadow_deadline_at_process_boundar
         encoding="utf-8",
     )
 
+    request.node._hippocampus_hook_evidence = json.loads(
+        (tmp_path / "hook-deadline-evidence.json").read_text(encoding="utf-8")
+    )
     assert result.returncode == 0
     assert result.stderr == ""
     response = json.loads(result.stdout)

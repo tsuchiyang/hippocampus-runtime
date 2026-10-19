@@ -404,6 +404,7 @@ def test_history_capacity_expires_unknown_before_denying_new_admission(
 
 def test_nonfault_release_does_not_wait_past_hook_budget_for_rebuild_lock(
     tmp_path: Path,
+    provider_phase_trace,
 ) -> None:
     from codex_memory.retrieval.service import process_rebuild_lock
 

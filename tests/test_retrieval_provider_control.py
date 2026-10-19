@@ -893,7 +893,7 @@ def test_record_failure_exception_is_structured_as_internal_health_unavailable(
 
 @pytest.mark.parametrize("operation", ("dense", "sparse"))
 def test_stalled_call_is_discarded_and_keeps_health_ownership(
-    tmp_path: Path, operation: str
+    tmp_path: Path, operation: str, provider_phase_trace,
 ) -> None:
     """Real-clock pair for the controlled logical-budget durability test below."""
     from contextlib import closing
@@ -1016,7 +1016,7 @@ def test_one_provider_admission_is_shared_across_components_and_capabilities(
 
 @pytest.mark.parametrize("operation", ("dense", "sparse"))
 def test_unrelated_admission_io_cannot_hold_a_timeout_settlement_past_its_budget(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, operation: str,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, operation: str, provider_phase_trace,
 ) -> None:
     """Two real stores and workers; only foreign validation has a finite barrier.
 
@@ -1343,7 +1343,7 @@ def test_health_verification_wait_recomputes_remaining_after_thread_start(
 
 
 def test_timeout_bookkeeping_does_not_wait_for_post_admission_verification(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, provider_phase_trace,
 ) -> None:
     """A slow health verifier after admission cannot extend the provider deadline."""
     from codex_memory.retrieval import provider_health
@@ -1552,7 +1552,7 @@ def test_timeout_bookkeeping_is_synchronous_and_never_spawns_a_late_write(
 
 
 def test_timeout_does_not_wait_for_a_blocked_read_only_health_verifier(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, provider_phase_trace,
 ) -> None:
     """A blocked verifier cannot extend the Hook and closes its own connection."""
     from codex_memory.retrieval import provider_health
@@ -1734,7 +1734,7 @@ def test_controller_uses_wall_clock_for_durable_cooldown_after_restart(tmp_path:
     assert response.call.status is ProviderCallStatus.TIMEOUT
 
 
-def test_repeated_controller_timeouts_open_the_durable_circuit(tmp_path: Path) -> None:
+def test_repeated_controller_timeouts_open_the_durable_circuit(tmp_path: Path, provider_phase_trace) -> None:
     """Two client-wait timeouts deny later calls across controller instances."""
     import time
 

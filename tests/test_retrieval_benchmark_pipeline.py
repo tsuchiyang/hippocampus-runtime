@@ -464,7 +464,7 @@ def test_pipeline_settlement_failure_discards_semantic_results_and_keeps_p2_2_fl
 
 
 def test_pipeline_fixture_remains_available_for_verified_semantic_reopen_in_child_process(
-    tmp_path: Path, semantic_functional_clock,
+    tmp_path: Path, semantic_functional_clock, provider_phase_trace,
 ) -> None:
     """A child uses the installed runtime, not an in-process cached result."""
     from codex_memory.retrieval.benchmark import load_benchmark_fixture

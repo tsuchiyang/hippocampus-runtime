@@ -2,7 +2,7 @@
 
 This is a locally prepared Alpha, not a published or production-certified release.
 
-## Current candidate: local verification, hosted result pending
+## Current candidate: local verification, Windows hosted gate failed
 
 Implementation `83d1236f1072a2425d1ec6af103111f6c4ef553b` passed the complete
 public Windows suite: **1770 passed, 0 failed, 0 errors, 0 skipped**, 263.27
@@ -27,8 +27,21 @@ Real Hook, stall, lock and numerical wall-clock tests keep their original clocks
 and limits. Bounded ingress measurements improve future failure evidence without
 changing Runtime policy; they do not establish cold-start performance.
 
-The matching new private hosted run is still required. Prior Windows hosted
-failures below remain preserved and are not erased by this local PASS.
+The matching private commit is `aeda99894a8dbc4f38ef4f4c48e40accb3134457`,
+with the same Git tree as documented candidate `8466dbc40c4b45a14e3d879f54fa2fc39924708a`.
+Actual run [39293185327](https://github.com/tsuchiyang/hippocampus-runtime/actions/runs/39293185327)
+completed with **Windows 1757 passed, 13 failed, 0 skipped**, 977.99 seconds.
+Later Windows build/privacy/wheel steps were skipped, not passed. Ubuntu passed
+747 cases with one explicit Windows-only skip (17.09 seconds); its actual wheel
+passed all 44 repair/version cases (3.42 seconds).
+
+Current Windows failures include two selected ingress paths, two real benchmark
+paths, one real Hook request-arrival check, provider dispatch/settlement and two
+unchanged 200 ms assertions (about 203/204 ms). No unique common root cause is
+established. A bounded local schema measurement found only about 1–3 ms per
+verification in tokenizer cost; it cannot explain all hosted exhaustion cases.
+Publication stays on hold. Prior failures below remain preserved; these are not
+converted to PASS by local success or a shorter subsequent diagnostic profile.
 
 ## Previous local Windows verification (preserved)
 
