@@ -23,6 +23,23 @@ from codex_memory.retrieval.cache_database import (
 from codex_memory.retrieval.contracts import IndexHighwater
 
 
+def test_frozen_expected_schema_is_immutable_and_does_not_alias_observed_sql() -> None:
+    from codex_memory.retrieval.cache_database import (
+        _frozen_schema_sql,
+        _v4_schema_statements,
+    )
+
+    statements = _v4_schema_statements(False)
+    expected = _frozen_schema_sql(statements)
+    key = ("table", "retrieval_schema_meta")
+    original = expected[key]
+    with pytest.raises(TypeError):
+        expected[key] = "tampered"  # type: ignore[index]
+    observed_copy = dict(expected)
+    observed_copy[key] = "tampered"
+    assert _frozen_schema_sql(statements)[key] == original
+
+
 def _initialize_legacy_schema_v1(connection: sqlite3.Connection) -> None:
     connection.executescript(
         """

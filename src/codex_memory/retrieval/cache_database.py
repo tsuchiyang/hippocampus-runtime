@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from datetime import datetime
+from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
 import re
 import sqlite3
-from typing import Any, Callable, Iterator, Sequence
+from types import MappingProxyType
+from typing import Any, Callable, Iterator, Mapping, Sequence
 
 from codex_memory.ledger_common import canonical_json
 
@@ -730,6 +732,17 @@ def _schema_sql_from_statements(statements: Sequence[str]) -> dict[tuple[str, st
         kind = "table" if match.group(0).lower().startswith("create virtual table") or match.group(0).lower().startswith("create table") else match.group(0).split()[1].lower()
         expected[(kind, match.group(2))] = _normal_sql(statement)
     return expected
+
+
+@lru_cache(maxsize=6)
+def _frozen_schema_sql(statements: tuple[str, ...]) -> Mapping[tuple[str, str], str]:
+    """Reuse only parsed, source-frozen v2/v3/v4 oracles (with/without FTS).
+
+    No observed SQLite text, file identity, projection or validation result is
+    cached. Callers must still read and validate the actual database each time.
+    The mapping cannot be mutated by a caller to change a later comparison.
+    """
+    return MappingProxyType(_schema_sql_from_statements(statements))
 
 
 _LEGACY_EXPECTED_SCHEMA_SQL = _schema_sql_from_statements(_LEGACY_SCHEMA_STATEMENTS)
@@ -1831,7 +1844,7 @@ def _verify_cache_database_v2(connection: sqlite3.Connection) -> None:
             if row["name"] == "retrieval_documents_fts"
             or not row["name"].startswith("retrieval_documents_fts_")
         }
-        expected_schema = _schema_sql_from_statements(_v2_schema_statements(fts5_present))
+        expected_schema = _frozen_schema_sql(_v2_schema_statements(fts5_present))
         if actual_schema != expected_schema:
             raise CacheCorruptError("retrieval schema definition is invalid")
         expected_columns = dict(_V2_TABLE_COLUMNS)
@@ -1985,7 +1998,7 @@ def _verify_cache_database_v3_or_v4(
             )
             if row["name"] == "retrieval_documents_fts" or not row["name"].startswith("retrieval_documents_fts_")
         }
-        if actual_schema != _schema_sql_from_statements(schema_statements(fts5_present)):
+        if actual_schema != _frozen_schema_sql(schema_statements(fts5_present)):
             raise CacheCorruptError("retrieval schema definition is invalid")
         columns = dict(table_columns)
         if fts5_present:

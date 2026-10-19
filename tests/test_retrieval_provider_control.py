@@ -34,6 +34,74 @@ def _fingerprint(provider: FakeProvider) -> str:
     return capabilities.fingerprint
 
 
+def test_frozen_ddl_recompilation_cannot_consume_a_warmed_provider_budget(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Catch redundant source-oracle compilation, without caching DB validity."""
+    from contextlib import closing
+    from codex_memory.retrieval import cache_database, provider_health
+
+    provider = FakeProvider()
+    fingerprint = _fingerprint(provider)
+    store = _health_store(tmp_path)
+    warm = store.acquire(fingerprint, ModelComponent.DENSE, now_ms=1)
+    assert warm.allowed
+    store.release(warm)
+    current = [0]
+    original = cache_database._schema_sql_from_statements
+
+    def expensive_source_compilation(*args, **kwargs):
+        # A controlled CPU-cost seam: the same frozen source need not be
+        # parsed again on every admission/settlement. Actual DB reads and
+        # observed DDL, column and history validation remain entirely real.
+        current[0] += 50_000_000
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(cache_database, "_schema_sql_from_statements", expensive_source_compilation)
+    if hasattr(provider_health, "_schema_sql_from_statements"):
+        monkeypatch.setattr(provider_health, "_schema_sql_from_statements", expensive_source_compilation)
+    response = ProviderCallController(
+        provider, DeadlineBudget.start(100, now_ns=lambda: 0), store,
+        fingerprint, now_ns=lambda: current[0],
+    ).dense_query(ProviderInput.from_text("query", 0, "query"), dimension=4)
+
+    assert response.call.status is ProviderCallStatus.OK
+    assert provider.call_counts[ProviderOperation.DENSE_QUERY] == 1
+    with closing(connect_cache_database(store.database_path, readonly=True)) as db:
+        assert [tuple(row) for row in db.execute(
+            "SELECT outcome, provider_status FROM retrieval_provider_attempt_results ORDER BY result_seq"
+        )] == [("released", None), ("success", "ok")]
+
+
+@pytest.mark.parametrize("damage", ["ddl", "projection"])
+def test_warmed_source_oracle_never_reuses_observed_health_validity(
+    tmp_path: Path, damage: str,
+) -> None:
+    """A warmed immutable oracle must still reject a freshly tampered DB."""
+    from contextlib import closing
+
+    store = _health_store(tmp_path)
+    fingerprint = "a" * 64
+    warm = store.acquire(fingerprint, ModelComponent.DENSE, now_ms=1)
+    assert warm.allowed
+    assert store.record_success(warm, now_ms=2) is HealthWriteOutcome.PERSISTED
+    with closing(connect_cache_database(store.database_path)) as db:
+        if damage == "ddl":
+            db.execute("DROP TRIGGER retrieval_provider_attempt_results_reject_update")
+        else:
+            db.execute("UPDATE retrieval_provider_health_current SET consecutive_failures = 1")
+        db.commit()
+    refused = store.acquire(
+        fingerprint, ModelComponent.DENSE, now_ms=3,
+        deadline=DeadlineBudget.start(100, now_ns=lambda: 0), now_ns=lambda: 0,
+    )
+
+    assert refused.allowed is False
+    assert refused.status is ProviderCallStatus.UNAVAILABLE
+    with closing(connect_cache_database(store.database_path, readonly=True)) as db:
+        assert db.execute("SELECT count(*) FROM retrieval_provider_attempt_admissions").fetchone()[0] == 1
+
+
 def test_dense_sparse_and_rerank_share_one_absolute_deadline(tmp_path: Path) -> None:
     class Clock:
         value = 0

@@ -24,6 +24,52 @@ tests, not measurements of Windows wall-clock latency or reenactments of history
 This local regression gate has passed. Public push, hosted CI, platform-wide
 certification and production support are separate decisions and are not claimed.
 
+## GitHub-hosted private staging: publication is still on hold
+
+The hosted snapshot `f00e2b3b8ed0560a208e7801ee98e251b75ead33` has the same
+193-file Git tree as local candidate `a63249cd91f75cbfff045814e6e70ca81ceb7783`.
+Its actual hosted results are:
+
+- Ubuntu local-core profile: **747 passed, 1 skipped**. The skip is
+  `test_windows_lock_contention_is_bounded_and_lock_is_released`, explicitly
+  marked `Windows advisory lock contract`. The installed-wheel regressions
+  separately passed all 44 cases; do not add overlapping cases to the source total.
+- Windows full public suite: **1754 passed, 9 failed, 0 skipped**. Later build
+  and installed-wheel steps did not run after the source-test failure.
+
+The Windows failures cover selected-host delivery, optional compact enhancement,
+semantic benchmark/shadow deadline handling and provider status/dispatch
+preconditions under short budgets. Earlier private snapshots also failed Windows
+tests (1753 passed/10 failed and 1755 passed/8 failed). All failed logs remain
+preserved. The previously repaired rerank test was not among those failures.
+Do not call the new failures harmless machine jitter or claim that later passing
+nodes close them. The exact causes and any required fixture versus Runtime fixes
+still require evidence; no budget or numerical assertion has been relaxed.
+
+Linux fixture corrections preserve native case-sensitive scope isolation instead
+of assuming Windows case-folding on every OS. Runtime source and dependency pins
+were not changed to obtain that Linux result. Neither Linux success nor the prior
+local Windows full suite establishes a passing Windows-hosted gate. This remains
+an unpublished Alpha candidate, not a production or public-release approval.
+
+### Follow-up Windows hardening candidate
+
+A deterministic regression proved that repeatedly parsing source-frozen expected
+DDL can consume a short provider budget even after the same oracle has already
+been established. Only the immutable expected definitions are now reused;
+current schema/DDL, columns, event history and projections remain revalidated.
+New tests reject actual DDL/projection tampering after warming and reject
+mutation of the shared expected mapping. Original deadlines, reservations and
+assertions are unchanged.
+
+The connection-unavailable test now explicitly constructs a connection refusal
+at the socket boundary instead of assuming a closed Windows port will refuse
+before its 100 ms cutoff. This is an identified fixture precondition correction,
+not a production status reclassification. Real loopback read-timeout and count
+validation remain. These changes do not prove the unique causes of the previous
+nine hosted failures, nor do focused local passes establish a hosted full-suite
+PASS. A new matching hosted run is still required.
+
 ## Preserved historical failure
 
 The complete Windows public suite at implementation commit

@@ -20,9 +20,9 @@ from .cache_database import (
     CacheCorruptError,
     SCHEMA_VERSION_V4,
     _V4_TABLE_COLUMNS,
+    _frozen_schema_sql,
     _normal_sql,
     _provider_health_projection_rows,
-    _schema_sql_from_statements,
     _v4_schema_statements,
     append_provider_health_event,
     connect_cache_database,
@@ -673,7 +673,7 @@ class ProviderHealthStore:
         }
         expected_schema = {
             key: value
-            for key, value in _schema_sql_from_statements(
+            for key, value in _frozen_schema_sql(
                 _v4_schema_statements(False)
             ).items()
             if key[1].startswith("retrieval_provider_health_")

@@ -31,6 +31,21 @@ annotated tag's own object SHA is not its target commit SHA; peel it and verify
 the action definition at the target before pinning. Existing read permissions,
 inner deadlines, tests and numerical assertions must not be relaxed to get CI green.
 
+Expected schema definitions are parsed from frozen source tuples into a bounded,
+read-only mapping. This avoids charging the same immutable DDL compilation to
+every short provider admission and settlement. It does not cache observed
+database validity: schema text, columns, append-only history and projections are
+still read and checked on every validation. Warm-cache tampering tests retain
+that distinction.
+
+The adapter's connection-refused classification test injects an actual
+`ConnectionRefusedError` only at `socket.create_connection`. The real urllib
+request, budgeted HTTP connection and adapter classifier remain in the path.
+A closed Windows port does not guarantee refusal before the connect deadline;
+it is therefore not used as an implicit timing fixture. Read-timeout and response
+count cases still exercise a real synthetic loopback HTTP server. Neither case
+is evidence about a real model service.
+
 ## Safe prepublication execution
 
 Before public publication, use an owner-approved private project or private CI

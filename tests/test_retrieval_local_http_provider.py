@@ -8,6 +8,8 @@ needed to prove the adapter contract.
 from __future__ import annotations
 
 import json
+import errno
+import socket
 import threading
 import time
 from collections.abc import Iterator
@@ -732,12 +734,29 @@ def test_adapter_rejects_declared_and_streamed_oversize_bodies(monkeypatch: pyte
     assert second.call.status is ProviderCallStatus.INVALID_RESPONSE
 
 
-def test_adapter_reports_connection_unavailable_timeout_and_count_mismatch() -> None:
+def test_adapter_reports_connection_unavailable_timeout_and_count_mismatch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     from codex_memory.retrieval.local_http_provider import LocalHttpProvider
 
-    unavailable = LocalHttpProvider.audited_for_tests("http://127.0.0.1:1").embed_query(
-        ProviderInput.from_text("query", 0, "query"), deadline_ms=100
-    )
+    connection_attempts: list[tuple[str, int]] = []
+
+    def refused_connection(address, *args, **kwargs):  # type: ignore[no-untyped-def]
+        connection_attempts.append(address)
+        raise ConnectionRefusedError(errno.ECONNREFUSED, "fixture connection refused")
+
+    # A closed port is not a portable promise of immediate refusal: Windows
+    # may consume the entire connect deadline first. Inject the actual socket
+    # failure at the transport boundary, keeping the real urllib request,
+    # budgeted HTTP connection and adapter classification. This is not a
+    # real-service availability claim; the following read timeout and count
+    # validation still use the real loopback fixture server.
+    with monkeypatch.context() as patch:
+        patch.setattr(socket, "create_connection", refused_connection)
+        unavailable = LocalHttpProvider.audited_for_tests("http://127.0.0.1:1").embed_query(
+            ProviderInput.from_text("query", 0, "query"), deadline_ms=100
+        )
+    assert connection_attempts == [("127.0.0.1", 1)]
     # Leave enough startup margin for the full suite while retaining a
     # deterministic read-phase timeout.  The server deliberately waits longer
     # than the adapter's total budget before sending the handshake response.
@@ -754,6 +773,7 @@ def test_adapter_reports_connection_unavailable_timeout_and_count_mismatch() -> 
         )
 
     assert unavailable.call.status is ProviderCallStatus.UNAVAILABLE
+    assert unavailable.items == ()
     assert timeout.call.status is ProviderCallStatus.TIMEOUT
     assert count.call.status is ProviderCallStatus.INVALID_RESPONSE
     assert count.items == ()
