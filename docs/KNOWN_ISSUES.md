@@ -78,6 +78,20 @@ mutation bypassing only the post-read cutoff was rejected by the exact original
 state assertion. Independent targeted review was CLEAN. Corrected hosted results
 remain pending; these focused checks are not a full-suite PASS.
 
+Run [39302566772](https://github.com/tsuchiyang/hippocampus-runtime/actions/runs/39302566772)
+is preserved as **Windows 1770 passed, 1 failed**, 281.45 seconds. Both post-read
+classification cases passed. The remaining case expected HTTP429 BUSY but instead
+exhausted its 500 ms total budget (reported625ms) before the intended classification
+was established. No evidence proves its unique operating-system delay or that
+the429 was parsed. The same adapter file's pure protocol/shape/identity/status
+cases now explicitly opt into an adapter-local logical clock, while all dedicated
+physical timing cases retain real clocks and original limits. Real HTTP paths,
+exact status assertions and original numeric settings remain. This is a functional
+fixture correction, not a production deadline change or latency certification.
+The updated adapter file passed all40 cases (17.26 seconds), and independent
+targeted review confirmed the opt-in list excludes physical deadline/read-cap
+tests. Corrected full hosted verification is still required.
+
 ## Previous local Windows verification (preserved)
 
 At implementation commit `fdebc8a63a2d86c3dac68ead78f8ac15df7c9940`, the complete

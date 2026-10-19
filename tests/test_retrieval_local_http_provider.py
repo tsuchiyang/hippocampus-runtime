@@ -51,6 +51,19 @@ def _audited_routes(embed: tuple[object, ...]) -> dict[str, tuple[object, ...]]:
     }
 
 
+@pytest.fixture
+def http_functional_clock(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Opt in to protocol semantics, retaining real sockets and phase caps.
+
+    Physical deadline/read-cap tests deliberately do not request this fixture.
+    Only the adapter's reference changes, never the process-wide time module.
+    """
+    from types import SimpleNamespace
+    from codex_memory.retrieval import local_http_provider as module
+
+    monkeypatch.setattr(module, "time", SimpleNamespace(monotonic_ns=lambda: 0))
+
+
 def test_factory_refuses_non_audited_or_non_dense_only_configurations() -> None:
     factory = getattr(config_module, "provider_from_config", None)
     boundary_factory = getattr(provider_module, "provider_from_config", None)
@@ -207,6 +220,7 @@ def _server(routes: dict[str, tuple[object, ...]]) -> Iterator[_FixtureServer]:
         fixture.close()
 
 
+@pytest.mark.usefixtures("http_functional_clock")
 def test_dense_mapping_uses_exact_fields_preserves_request_order_and_marks_sparse_unsupported() -> None:
     from codex_memory.retrieval.local_http_provider import (
         AUDITED_DENSE_FINGERPRINT,
@@ -239,6 +253,7 @@ def test_dense_mapping_uses_exact_fields_preserves_request_order_and_marks_spars
     assert fixture.requests[-1][1] == {"input": ["first", "second"], "model": "bge-m3", "truncate": False}
 
 
+@pytest.mark.usefixtures("http_functional_clock")
 def test_audited_034_profile_accepts_observed_034_service() -> None:
     """The audited local service version must be bound to the live response."""
     from codex_memory.retrieval.local_http_provider import LocalHttpProvider
@@ -268,6 +283,7 @@ def test_audited_034_profile_accepts_observed_034_service() -> None:
     ("status", "expected"),
     [(404, ProviderCallStatus.UNSUPPORTED), (429, ProviderCallStatus.BUSY), (503, ProviderCallStatus.BUSY), (400, ProviderCallStatus.INPUT_TOO_LONG)],
 )
+@pytest.mark.usefixtures("http_functional_clock")
 def test_dense_http_failures_have_stable_safe_status(status: int, expected: ProviderCallStatus) -> None:
     from codex_memory.retrieval.local_http_provider import LocalHttpProvider
 
@@ -276,6 +292,7 @@ def test_dense_http_failures_have_stable_safe_status(status: int, expected: Prov
             ProviderInput.from_text("query", 0, "query"), deadline_ms=500
         )
 
+    assert fixture.paths == ["/api/version", "/api/tags", "/api/embed"]
     assert response.call.status is expected
     assert response.items == ()
     assert response.call.reason == expected.value
@@ -287,6 +304,7 @@ def test_dense_http_failures_have_stable_safe_status(status: int, expected: Prov
     ("application/json", {"embeddings": [[float("nan")]]}),
     ("application/json", {"model": "bge-m3", "embeddings": [[1.0]], "total_duration": 1, "load_duration": 1, "prompt_eval_count": 1}),
 ])
+@pytest.mark.usefixtures("http_functional_clock")
 def test_dense_rejects_untrusted_response_shapes(mime: str, body: object) -> None:
     from codex_memory.retrieval.local_http_provider import LocalHttpProvider
 
@@ -299,6 +317,7 @@ def test_dense_rejects_untrusted_response_shapes(mime: str, body: object) -> Non
     assert response.items == ()
 
 
+@pytest.mark.usefixtures("http_functional_clock")
 def test_dense_rejects_response_beyond_the_audited_no_truncation_limit() -> None:
     from codex_memory.retrieval.local_http_provider import LocalHttpProvider
 
@@ -312,6 +331,7 @@ def test_dense_rejects_response_beyond_the_audited_no_truncation_limit() -> None
     assert response.items == ()
 
 
+@pytest.mark.usefixtures("http_functional_clock")
 def test_dense_requires_a_fresh_successful_capability_handshake_before_embedding() -> None:
     from codex_memory.retrieval.local_http_provider import LocalHttpProvider
 
@@ -710,6 +730,7 @@ def test_read_timeout_before_total_deadline_is_not_complete_late_delivery(
     ("0.0.0", "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab"),
     ("0.33.3", "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab"),
 ])
+@pytest.mark.usefixtures("http_functional_clock")
 def test_each_dense_call_revalidates_the_audited_version_and_digest(version: str, digest: str) -> None:
     from codex_memory.retrieval.local_http_provider import LocalHttpProvider
 
@@ -728,6 +749,7 @@ def test_each_dense_call_revalidates_the_audited_version_and_digest(version: str
     assert all(path != "/api/embed" for path, _ in fixture.requests)
 
 
+@pytest.mark.usefixtures("http_functional_clock")
 def test_dense_revalidates_after_a_previous_successful_handshake_detects_model_change() -> None:
     from codex_memory.retrieval.local_http_provider import LocalHttpProvider
 
@@ -743,6 +765,7 @@ def test_dense_revalidates_after_a_previous_successful_handshake_detects_model_c
     assert [path for path, _ in fixture.requests].count("/api/embed") == 0
 
 
+@pytest.mark.usefixtures("http_functional_clock")
 def test_adapter_refuses_redirect_instead_of_following_it() -> None:
     from codex_memory.retrieval.local_http_provider import LocalHttpProvider
 
@@ -757,6 +780,7 @@ def test_adapter_refuses_redirect_instead_of_following_it() -> None:
     assert [path for path, _ in fixture.requests].count("/api/redirected") == 0
 
 
+@pytest.mark.usefixtures("http_functional_clock")
 def test_adapter_installs_empty_proxy_handler_and_no_redirect_handler(monkeypatch: pytest.MonkeyPatch) -> None:
     from codex_memory.retrieval import local_http_provider as module
 
@@ -778,6 +802,7 @@ def test_adapter_installs_empty_proxy_handler_and_no_redirect_handler(monkeypatc
     assert any(isinstance(handler, module._NoRedirect) for handler in captured)
 
 
+@pytest.mark.usefixtures("http_functional_clock")
 def test_adapter_rejects_declared_and_streamed_oversize_bodies(monkeypatch: pytest.MonkeyPatch) -> None:
     from codex_memory.retrieval import local_http_provider as module
 
@@ -830,10 +855,17 @@ def test_adapter_reports_connection_unavailable_timeout_and_count_mismatch(
         timeout = LocalHttpProvider.audited_for_tests(fixture.base_url).embed_query(
             ProviderInput.from_text("query", 0, "query"), deadline_ms=250
         )
-    with _server(_audited_routes((200, "application/json", {"model": "bge-m3", "embeddings": [[1.0] * 1024], "total_duration": 1, "load_duration": 1, "prompt_eval_count": 1}))) as fixture:
-        count = LocalHttpProvider.audited_for_tests(fixture.base_url).embed_documents(
-            (ProviderInput.from_text("a", 0, "one"), ProviderInput.from_text("b", 1, "two")), deadline_ms=500
-        )
+    from types import SimpleNamespace
+    from codex_memory.retrieval import local_http_provider as module
+
+    # Only cardinality validation is functional; the refusal and actual stalled
+    # read above retain their real clocks and original transport budgets.
+    with monkeypatch.context() as patch:
+        patch.setattr(module, "time", SimpleNamespace(monotonic_ns=lambda: 0))
+        with _server(_audited_routes((200, "application/json", {"model": "bge-m3", "embeddings": [[1.0] * 1024], "total_duration": 1, "load_duration": 1, "prompt_eval_count": 1}))) as fixture:
+            count = LocalHttpProvider.audited_for_tests(fixture.base_url).embed_documents(
+                (ProviderInput.from_text("a", 0, "one"), ProviderInput.from_text("b", 1, "two")), deadline_ms=500
+            )
 
     assert unavailable.call.status is ProviderCallStatus.UNAVAILABLE
     assert unavailable.items == ()
@@ -842,6 +874,7 @@ def test_adapter_reports_connection_unavailable_timeout_and_count_mismatch(
     assert count.items == ()
 
 
+@pytest.mark.usefixtures("http_functional_clock")
 def test_capability_response_streams_are_closed_after_each_handshake_request(monkeypatch: pytest.MonkeyPatch) -> None:
     from codex_memory.retrieval import local_http_provider as module
 

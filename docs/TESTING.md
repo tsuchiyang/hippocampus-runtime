@@ -46,6 +46,15 @@ case distinguishes an earlier TimeoutError from completed late delivery. These
 are classification tests, not physical 200 ms latency evidence; actual connect,
 stalled-read and end-to-end Hook timing tests keep their real clocks and limits.
 
+Other HTTP protocol/shape/identity/status tests explicitly opt into the
+adapter-local `http_functional_clock` fixture. They still use actual loopback
+HTTP, handshakes, request construction and validation, with exact status and
+payload assertions; they make no aggregate wall-clock claim. The mixed
+connection/timeout/count test freezes only its count-validation subcase.
+Absolute-deadline, connect/read-cap, delayed-entry and physical elapsed tests do
+not use that fixture. No process-wide clock, production timeout or accepted
+status set is changed.
+
 Selected ingress tests attach at most 128 safe phase measurements to assertion
 failures. This opt-in test fixture forwards the actual calls and context exits;
 it changes no Runtime clock, deadline, result or output protocol. Its process-local
