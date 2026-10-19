@@ -62,6 +62,22 @@ real Hook subprocess cases (7 passed, 12.93 seconds), with independent targeted
 review CLEAN. This failed full run is not converted to PASS and the corrected
 candidate still needs its own full CI result.
 
+The corrected-caller run [39300953035](https://github.com/tsuchiyang/hippocampus-runtime/actions/runs/39300953035)
+is preserved as **Windows 1769 passed, 1 failed**, 276.68 seconds. The three
+caller cases passed. The sole failure was the real HTTP trickle test receiving
+TIMEOUT at 187 ms instead of DEADLINE_EXHAUSTED under a 200 ms budget. That test
+did not establish that the complete body returned before testing the post-read
+cutoff. A transport timeout can legitimately occur first; the log does not prove
+its unique socket phase or operating-system cause. No production classification
+is changed or historical failure relabeled. The fixture correction now proves
+complete real-body delivery before advancing its local logical clock, and tests
+the earlier read-timeout branch separately; neither is physical latency evidence.
+The affected adapter file passed 40 cases (17.25 seconds), and the final two
+classification cases passed separately (1.26 seconds). An isolated in-memory
+mutation bypassing only the post-read cutoff was rejected by the exact original
+state assertion. Independent targeted review was CLEAN. Corrected hosted results
+remain pending; these focused checks are not a full-suite PASS.
+
 ## Previous local Windows verification (preserved)
 
 At implementation commit `fdebc8a63a2d86c3dac68ead78f8ac15df7c9940`, the complete

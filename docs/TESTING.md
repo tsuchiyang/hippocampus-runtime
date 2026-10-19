@@ -38,6 +38,14 @@ Otherwise inspection time can unintentionally turn an unexpired-lease case into
 an expired-unknown case. Actual Hook subprocess, stalled-provider, lock-contention
 and numerical wall-clock assertions retain their real clocks and original limits.
 
+The post-read HTTP deadline classification test retains real loopback HTTP,
+urllib, sockets and the complete trickled response. Only the adapter-local
+logical clock advances after that full body has actually returned, making the
+post-read cutoff branch deterministic. A separate real HTTP read-seam fault
+case distinguishes an earlier TimeoutError from completed late delivery. These
+are classification tests, not physical 200 ms latency evidence; actual connect,
+stalled-read and end-to-end Hook timing tests keep their real clocks and limits.
+
 Selected ingress tests attach at most 128 safe phase measurements to assertion
 failures. This opt-in test fixture forwards the actual calls and context exits;
 it changes no Runtime clock, deadline, result or output protocol. Its process-local

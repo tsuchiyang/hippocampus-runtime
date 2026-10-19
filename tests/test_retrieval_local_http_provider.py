@@ -625,9 +625,16 @@ def test_absolute_deadline_is_rechecked_before_send(
     assert base_send_calls == []
 
 
-def test_trickled_response_that_finishes_after_deadline_is_rejected() -> None:
-    """Would fail if body reads did not recheck the original absolute deadline."""
-    from codex_memory.retrieval.local_http_provider import LocalHttpProvider
+def test_trickled_response_that_finishes_after_deadline_is_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reject a complete real body at the original logical post-read cutoff.
+
+    This is deadline classification, not wall-clock latency evidence. Real
+    socket timeouts may otherwise preempt the branch that this test targets.
+    """
+    from types import SimpleNamespace
+    from codex_memory.retrieval import local_http_provider as module
 
     body = {
         "model": "bge-m3", "embeddings": [[1.0] * 1024],
@@ -635,12 +642,68 @@ def test_trickled_response_that_finishes_after_deadline_is_rejected() -> None:
     }
     encoded = json.dumps(body, separators=(",", ":")).encode("utf-8")
     chunks = [(0.0, encoded[:1000])] + [(0.06, encoded[index:index + 1000]) for index in range(1000, len(encoded), 1000)]
+    current_ns = [0]
+    complete_bodies = []
+    actual_read = module._BudgetedHTTPResponse.read
+
+    def finish_after_deadline(response, amount=None):  # type: ignore[no-untyped-def]
+        raw = actual_read(response, amount)
+        if raw == encoded:
+            complete_bodies.append(raw)
+            current_ns[0] = 201_000_000
+        return raw
+
+    monkeypatch.setattr(module, "time", SimpleNamespace(monotonic_ns=lambda: current_ns[0]))
+    monkeypatch.setattr(module._BudgetedHTTPResponse, "read", finish_after_deadline)
     with _server(_audited_routes((200, "application/json", body, chunks))) as fixture:
-        response = LocalHttpProvider.audited_for_tests(fixture.base_url).embed_query(
+        response = module.LocalHttpProvider.audited_for_tests(fixture.base_url).embed_query(
             ProviderInput.from_text("q", 0, "fixture"), deadline_ms=200
         )
 
+    assert fixture.paths == ["/api/version", "/api/tags", "/api/embed"]
+    assert complete_bodies == [encoded], "the actual response must finish before the post-read check"
+    assert current_ns[0] == 201_000_000
     assert response.call.status is ProviderCallStatus.DEADLINE_EXHAUSTED
+    assert response.items == ()
+
+
+def test_read_timeout_before_total_deadline_is_not_complete_late_delivery(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A real adapter read-phase exception is not a completed late body."""
+    from types import SimpleNamespace
+    from codex_memory.retrieval import local_http_provider as module
+
+    body = {
+        "model": "bge-m3", "embeddings": [[1.0] * 1024],
+        "total_duration": 1, "load_duration": 0, "prompt_eval_count": 1,
+    }
+    current_ns = [0]
+    read_faults = []
+    actual_read = module._BudgetedHTTPResponse.read
+
+    def timeout_during_embed(response, amount=None):  # type: ignore[no-untyped-def]
+        if response.headers.get("X-Synthetic-Read-Fault") == "embed":
+            current_ns[0] = 187_000_000
+            read_faults.append("embed-read")
+            raise TimeoutError("synthetic socket-read timeout")
+        return actual_read(response, amount)
+
+    monkeypatch.setattr(module, "time", SimpleNamespace(monotonic_ns=lambda: current_ns[0]))
+    monkeypatch.setattr(module._BudgetedHTTPResponse, "read", timeout_during_embed)
+    routes = _audited_routes((200, "application/json", body, {"X-Synthetic-Read-Fault": "embed"}))
+    with _server(routes) as fixture:
+        response = module.LocalHttpProvider.audited_for_tests(fixture.base_url).embed_query(
+            ProviderInput.from_text("q", 0, "fixture"), deadline_ms=200
+        )
+
+    assert fixture.paths == ["/api/version", "/api/tags", "/api/embed"]
+    assert read_faults == ["embed-read"]
+    assert current_ns[0] < 200_000_000
+    assert response.call.status is ProviderCallStatus.TIMEOUT
+    assert response.call.provider_fingerprint == module.AUDITED_PROVIDER_FINGERPRINT
+    assert response.call.model_fingerprint == module.AUDITED_DENSE_FINGERPRINT
+    assert response.items == ()
 
 
 @pytest.mark.parametrize("version,digest", [
