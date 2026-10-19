@@ -112,7 +112,7 @@ def semantic_functional_clock(monkeypatch: pytest.MonkeyPatch):
 
 
 @pytest.fixture
-def p26_phase_trace(monkeypatch: pytest.MonkeyPatch):
+def p26_phase_trace(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest):
     """Bounded test-only ingress evidence; no payload/path or clock changes."""
     from functools import wraps
     import time
@@ -120,6 +120,7 @@ def p26_phase_trace(monkeypatch: pytest.MonkeyPatch):
     from codex_memory.retrieval import isolated_hook, selected_host
 
     records = []
+    request.node._hippocampus_p26_trace = records
 
     def measured(stage, operation, deadline=None):
         started = time.perf_counter_ns()
@@ -184,4 +185,105 @@ def p26_phase_trace(monkeypatch: pytest.MonkeyPatch):
 
     watch_binding_directories(isolated_hook, "isolated-directories")
     watch_binding_directories(selected_host, "selected-directories")
+    return records
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Render bounded opt-in evidence after timed calls, only on failure."""
+    import json
+
+    outcome = yield
+    report = outcome.get_result()
+    if report.when == "call" and report.failed:
+        for attribute, title in (
+            ("_hippocampus_p26_trace", "Bounded ingress phase evidence"),
+            ("_hippocampus_provider_trace", "Bounded provider phase evidence"),
+            ("_hippocampus_hook_evidence", "Synthetic installed Hook evidence"),
+        ):
+            evidence = getattr(item, attribute, None)
+            if evidence is not None:
+                report.sections.append((title, json.dumps(evidence, sort_keys=True)))
+
+
+@pytest.fixture
+def provider_phase_trace(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest):
+    """Diagnostic only: no extra clock callback, SQL, payload or state read."""
+    from functools import wraps
+    import threading
+    import time
+    from codex_memory.retrieval import canonical_snapshot, provider_control, provider_health, service
+
+    records = []
+    request.node._hippocampus_provider_trace = records
+    origin = time.perf_counter_ns()
+
+    def measure(stage, operation, kwargs):
+        started = time.perf_counter_ns()
+        error = None
+        result = None
+        try:
+            result = operation()
+            return result
+        except BaseException as exc:
+            error = type(exc).__name__
+            raise
+        finally:
+            ended = time.perf_counter_ns()
+            if len(records) < 128:
+                deadline = kwargs.get("deadline")
+                records.append({
+                    "stage": stage,
+                    "start_offset_ms": (started - origin) / 1_000_000,
+                    "elapsed_ms": (ended - started) / 1_000_000,
+                    "thread": threading.current_thread().name,
+                    "deadline_started_ns": getattr(deadline, "started_ns", None),
+                    "deadline_ns": getattr(deadline, "deadline_ns", None),
+                    "clock_kind": "real_monotonic" if kwargs.get("now_ns") is time.monotonic_ns
+                        else "provided_or_unspecified",
+                    "status": getattr(getattr(result, "call", result), "status", None),
+                    "allowed": getattr(result, "allowed", None),
+                    "exception_type": error,
+                })
+
+    def watch(owner, name, stage, *, static=False):
+        actual = getattr(owner, name)
+
+        @wraps(actual)
+        def observed(*args, **kwargs):
+            return measure(stage, lambda: actual(*args, **kwargs), kwargs)
+
+        monkeypatch.setattr(owner, name, staticmethod(observed) if static else observed)
+
+    store = provider_health.ProviderHealthStore
+    for name in ("acquire", "_acquire_under_rebuild_lock", "record_failure", "record_success",
+                 "release", "_record_under_rebuild_lock", "_bounded_health_verification"):
+        watch(store, name, name)
+    watch(store, "_verify_provider_control_database", "health-schema-and-projection", static=True)
+    watch(provider_control.ProviderCallController, "_invoke", "controller-invoke")
+    watch(provider_health, "connect_cache_database", "health-sqlite-open")
+    watch(service.RetrievalService, "query", "retrieval-query")
+    watch(service, "verify_cache_database", "cache-verification")
+    watch(canonical_snapshot, "verify_ledger", "canonical-verification")
+
+    def watch_context(owner, name, stage):
+        actual = getattr(owner, name)
+
+        @wraps(actual)
+        def context(*args, **kwargs):
+            target = actual(*args, **kwargs)
+
+            class ForwardedContext:
+                def __enter__(self):
+                    return measure(stage + "-enter", target.__enter__, kwargs)
+
+                def __exit__(self, *exc_info):
+                    return measure(stage + "-exit", lambda: target.__exit__(*exc_info), kwargs)
+
+            return ForwardedContext()
+
+        monkeypatch.setattr(owner, name, context)
+
+    watch_context(store, "_rebuild_guard", "health-rebuild-guard")
+    watch_context(provider_health, "immediate_transaction", "health-transaction")
     return records

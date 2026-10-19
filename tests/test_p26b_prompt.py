@@ -151,7 +151,7 @@ def test_isolated_prompt_authorization_precedes_runtime_and_any_write(prompt_lab
     assert not InjectionPaths.for_repo(runtime.paths.repo_root).injections_dir.exists()
 
 
-def test_isolated_prompt_does_not_use_cli_or_new_phase_budget(prompt_lab, monkeypatch):
+def test_isolated_prompt_does_not_use_cli_or_new_phase_budget(prompt_lab, monkeypatch, p26_phase_trace, provider_phase_trace):
     runtime, _record_id = prompt_lab
     start = time.monotonic_ns()
     deadlines = []

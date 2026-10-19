@@ -12,6 +12,21 @@ profile in `tests/linux-core.txt`; that does not certify Windows-only injection.
 Both jobs scan the tracked tree and reachable Git history, build wheel/sdist,
 install the actual wheel offline and run version/recovery repair regressions.
 
+Windows uses a new run-specific pytest `--basetemp` child under GitHub's
+`RUNNER_TEMP`, outside the checkout and user-profile temp tree. The workflow
+validates the numeric run/attempt identity, exact parent and target absence
+before pytest owns that disposable directory. It does not change global TEMP,
+HOME, permissions, security settings or any inner deadline. Ordinary local tests
+can retain their own writable temporary layout.
+
+A preceding private diagnostic pair passed the same 13 fixed nodes in both
+temporary layouts (system-temp 33.38 s; runner-temp 22.88 s). This is evidence
+about that small pair, not a proof that the drive caused previous full-suite
+failures. The explicit CI layout requires its own actual full-suite result;
+the original failures remain preserved. Failed tests include bounded safe phase
+sections and the synthetic installed-Hook sidecar; passing focused nodes are not
+counted as a full/release gate.
+
 ## Reproducible bootstrap
 
 CI pins uv 0.12.1 and installs CPython 3.12.13 with uv on both operating systems:

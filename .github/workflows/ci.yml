@@ -32,7 +32,15 @@ jobs:
           uv run --no-sync python -c "import platform, sys; assert sys.version_info[:3] == (3, 12, 13); print(platform.platform()); print(sys.version)"
       - name: Windows public suite (synthetic; no host or model)
         if: runner.os == 'Windows'
-        run: uv run --no-sync pytest -q -rs
+        run: |
+          if ($env:GITHUB_RUN_ID -notmatch '\A[0-9]+\z' -or $env:GITHUB_RUN_ATTEMPT -notmatch '\A[0-9]+\z') { throw 'Invalid CI run identity' }
+          $ciTempRoot = (Resolve-Path -LiteralPath $env:RUNNER_TEMP).Path
+          $ciCheckoutRoot = (Get-Location).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar)
+          if ($ciTempRoot -ieq $ciCheckoutRoot -or $ciTempRoot.StartsWith($ciCheckoutRoot + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) { throw 'CI temp must be outside checkout' }
+          $ciTestTemp = [System.IO.Path]::GetFullPath((Join-Path $ciTempRoot ("hippocampus-pytest-" + $env:GITHUB_RUN_ID + "-" + $env:GITHUB_RUN_ATTEMPT)))
+          if ([System.IO.Path]::GetDirectoryName($ciTestTemp) -ine $ciTempRoot) { throw 'CI temporary scope mismatch' }
+          if (Test-Path -LiteralPath $ciTestTemp) { throw 'Refuse existing CI temporary target' }
+          uv run --no-sync pytest -q -rs --basetemp "$ciTestTemp"
       - name: Linux local core (Windows-only injection is not certified)
         if: runner.os == 'Linux'
         shell: bash

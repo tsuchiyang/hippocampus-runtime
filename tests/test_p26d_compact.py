@@ -71,7 +71,7 @@ def invoke(lab, command, event, **extras):
 
 
 @pytest.mark.parametrize("cache_absent", [False, True])
-def test_compact_profile_real_checkpoint_recovery_and_fresh_window(compact_lab, cache_absent, p26_phase_trace):
+def test_compact_profile_real_checkpoint_recovery_and_fresh_window(compact_lab, cache_absent, p26_phase_trace, provider_phase_trace):
     runtime, marker, hooks = compact_lab
     from codex_memory.retrieval.selected_host import hook_definition
     assert hook_definition(Path(marker["runtime_entry"]), compact_cycle=True) == hooks

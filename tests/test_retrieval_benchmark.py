@@ -147,6 +147,7 @@ def test_fake_script_executes_the_pipeline_instead_of_using_relevance_as_final_r
 
 def test_pipeline_certifies_mandatory_constitution_and_preserves_its_rerank_slot(
     tmp_path: Path,
+    provider_phase_trace,
 ) -> None:
     """The fixed fixture must exercise the real certification and protected-slot paths."""
     from codex_memory.retrieval.benchmark import load_benchmark_fixture
