@@ -16,8 +16,8 @@ uv run --no-sync pytest -q -rs $(cat tests/linux-core.txt)
 
 That Linux job does not claim the Windows-only injection/audit tests passed.
 The same list can be collected on any platform, but a Windows run of it is not
-a Linux execution. The current preparation machine cannot execute Linux; no
-Linux hosted CI success is claimed before publication.
+a Linux execution. Consult the exact GitHub Actions commit, job and logs for
+actual Linux execution; the local Windows result cannot stand in for it.
 
 Use Python 3.12, Git and a writable local temporary directory. Do not run the suite
 with real project memory, a private host HOME or model credentials. Tests create
@@ -86,7 +86,7 @@ read errors and size-limit failures cannot produce PASS. This heuristic does
 not prove exhaustive secret absence, legal ownership or product safety. Do not
 publish raw scans of a private repository.
 
-A source build or local Windows test is not a Linux CI run. Until the workflow
-actually executes after owner-approved publication, GitHub-hosted CI is NOT_RUN.
+A source build or local Windows test is not a Linux CI run. Only the matching
+hosted job can establish its result; a private CI run is not public publication.
 Wheel/sdist install checks do not demonstrate real-host context delivery. Prior
 same-code host evidence must retain its own precise Runtime/host versions.

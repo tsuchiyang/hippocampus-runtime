@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+import os
 import sqlite3
 
 from codex_memory.retrieval.contracts import RetrievalRequest, RetrievalScope
+
+
+SCOPE = r"C:\\Work\\Repo"
+MATCHING_SCOPE = SCOPE.swapcase() if os.name == "nt" else SCOPE
 
 
 def _request(query: str = "") -> RetrievalRequest:
@@ -27,7 +32,7 @@ def _cache() -> sqlite3.Connection:
 
 
 def _document(connection: sqlite3.Connection, *, identifier: str, seq: int, topic: str,
-              statement: str, state: str = "active", scope: str = r"c:\\work\\repo",
+              statement: str, state: str = "active", scope: str = MATCHING_SCOPE,
               content: str | None = None) -> None:
     connection.execute(
         "INSERT INTO retrieval_documents VALUES (?, 'gen', ?, ?, 'project', ?, ?, ?, '{}', ?, ?, '2026-01-01T00:00:00Z', ?, ?)",

@@ -42,7 +42,9 @@ distribution. Omitted historical acceptance tests retain their original outcomes
 see [test selection](TEST_SELECTION.json). Nothing in this export converts a
 prior failed or uncertified gate into PASS.
 
-The owner approved preparing an MIT-licensed public Alpha. Proposed attribution
-is “Codex Memory Runtime contributors”; public push still requires the owner's
-final publication approval and confirmation of attribution/rights. Automated
-source/notice scanning cannot establish legal title or an exhaustive license audit.
+The owner approved preparing an MIT-licensed public Alpha and confirmed that the
+project was independently developed as a personal project, without company-internal
+or known restricted third-party source. Attribution remains “Codex Memory Runtime
+contributors”. Public publication still requires the owner's final approval.
+Automated source/notice scanning cannot establish legal title or an exhaustive
+license audit.

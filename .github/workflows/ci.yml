@@ -41,8 +41,10 @@ jobs:
         run: uv run --no-sync python scripts/check_release.py --history
       - name: Build licensed wheel and source distribution
         run: uv build --no-sources
+      - name: Record build artifact SHA-256 in the job log
+        run: uv run --no-sync python -c "import hashlib; from pathlib import Path; files = sorted(Path('dist').iterdir()); assert len(files) == 2; [print(hashlib.sha256(p.read_bytes()).hexdigest(), p.name) for p in files]"
       - name: Replace editable package with built wheel (offline)
-        run: uv pip install --reinstall --no-index --no-deps dist/codex_memory_runtime-0.1.0a1-py3-none-any.whl
+        run: uv pip install --reinstall --no-index --no-deps --link-mode=copy dist/codex_memory_runtime-0.1.0a1-py3-none-any.whl
       - name: Require the actual installed wheel, not checkout imports
         run: uv run --no-sync python -c "from pathlib import Path; import codex_memory; assert 'site-packages' in Path(codex_memory.__file__).resolve().parts; assert codex_memory.__version__ == '0.1.0a1'"
       - name: Installed-wheel repair regressions

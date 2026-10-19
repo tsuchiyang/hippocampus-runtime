@@ -21,6 +21,8 @@ tools, not relicensed by this project's LICENSE.
 
 Names such as Codex, OpenAI, SQLite and BGE-M3 identify interoperability targets;
 their mention is not an endorsement or an included distribution license.
-The MIT text follows the SPDX MIT standard license. Tool-assisted source review
-did not establish legal title; the repository owner must confirm the proposed
-attribution and any unrecorded external provenance before public publication.
+The MIT text follows the SPDX MIT standard license. The owner has confirmed that
+this is an independently developed personal project without company-internal or
+known restricted third-party source. Existing contributor attribution is retained.
+This owner declaration and automated checks are not an independent legal-title
+opinion; public publication still requires the owner's final approval.

@@ -51,7 +51,8 @@ the new successful result does not overwrite them.
 
 - Installed-wheel checks are recorded separately from the source full suite.
   Their overlapping test cases are not added to its unique test total.
-- Windows and Linux CI workflows are defined, but GitHub-hosted CI has not run.
+- Windows and Linux CI results must be checked in the matching GitHub Actions run;
+  a workflow definition alone is not evidence of successful hosted execution.
   The Linux job uses an explicitly limited local-core profile, not Windows-only
   injection certification.
 - No new real-host/model acceptance was run for Alpha version `0.1.0a1`.
@@ -60,8 +61,9 @@ the new successful result does not overwrite them.
   absence, legal ownership or universal safety.
 - Cooperative deadlines do not prove hard interruption of arbitrary operating
   system/filesystem I/O, or a universal latency guarantee under machine stalls.
-- SPDX MIT metadata and contributor attribution are prepared; the project owner
-  must confirm redistribution rights and attribution before public publication.
+- SPDX MIT metadata and contributor attribution are prepared. The owner confirmed
+  independent personal development without known restricted external source;
+  final public publication remains a separate owner decision.
 
 Documentation added after the tested implementation does not constitute another
 full-suite execution. See [testing scope](TESTING.md) and [provenance](PROVENANCE.md).

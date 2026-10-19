@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import pytest
 
 from codex_memory.ledger_common import ValidationError
@@ -27,14 +29,19 @@ def test_scope_context_preserves_first_spelling_and_deduplicates() -> None:
     assert context.workspace_scope_keys == ("Workspace", "Another")
 
 
-def test_scope_context_deduplicates_windows_casefold_variants() -> None:
+def test_scope_context_applies_native_case_rules_to_variants() -> None:
     context = ScopeContext(
         project_scope_key="repo",
         workspace_scope_keys=("Workspace", "workspace"),
     )
 
-    assert context.workspace_scope_keys == ("Workspace",)
-    assert context.contains(scope_kind="workspace", scope_key="WORKSPACE")
+    if os.name == "nt":
+        assert context.workspace_scope_keys == ("Workspace",)
+        assert context.contains(scope_kind="workspace", scope_key="WORKSPACE")
+    else:
+        assert context.workspace_scope_keys == ("Workspace", "workspace")
+        assert context.contains(scope_kind="workspace", scope_key="workspace")
+        assert not context.contains(scope_kind="workspace", scope_key="WORKSPACE")
 
 
 def test_scope_context_rejects_blank_or_oversized_workspace_keys() -> None:
@@ -78,4 +85,7 @@ def test_scope_context_keeps_opaque_workspace_key_spelling() -> None:
         workspace_scope_keys=(r"team/not-a-path", r"TEAM/NOT-A-PATH"),
     )
 
-    assert context.workspace_scope_keys == (r"team/not-a-path",)
+    expected = (r"team/not-a-path",) if os.name == "nt" else (
+        r"team/not-a-path", r"TEAM/NOT-A-PATH",
+    )
+    assert context.workspace_scope_keys == expected

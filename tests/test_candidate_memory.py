@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import fields
 import importlib.util
 from importlib import import_module
+import os
 import re
 import sqlite3
 from threading import Barrier, Thread
@@ -25,6 +26,10 @@ from codex_memory.paths import RuntimePaths
 from codex_memory.structured_ledger import apply_action, propose_record, verify_ledger
 
 
+SCOPE = r"C:\Work\Repo"
+MATCHING_SCOPE = SCOPE.swapcase() if os.name == "nt" else SCOPE
+
+
 def _candidate():
     spec = importlib.util.find_spec("codex_memory.candidate_memory")
     assert spec is not None, "candidate capture module is required"
@@ -36,10 +41,10 @@ def _candidate():
 
 def _arguments(**changes):
     arguments = {
-        "project_scope_key": r"C:\Work\Repo",
+        "project_scope_key": SCOPE,
         "record_type": "decision",
         "scope_kind": "project",
-        "scope_key": r"c:\work\repo",
+        "scope_key": MATCHING_SCOPE,
         "topic_key": "storage.engine",
         "statement": "Use SQLite for the durable ledger.",
         "session_id": "session_a",
@@ -234,7 +239,7 @@ def test_candidate_capture_public_result_shapes_and_initial_projection(runtime) 
     assert tuple(capture_event) == ("capture", "{}", "capture-1")
 
 
-def test_project_scope_uses_windows_casefold_but_workspace_preserves_caller_spelling(runtime) -> None:
+def test_project_scope_uses_native_case_rules_but_workspace_preserves_caller_spelling(runtime) -> None:
     project = _capture(runtime)
     workspace = _capture(
         runtime,
@@ -245,6 +250,9 @@ def test_project_scope_uses_windows_casefold_but_workspace_preserves_caller_spel
 
     assert project.scope_key == r"C:\Work\Repo"
     assert workspace.scope_key == "Workspace Caller Spelling"
+    if os.name != "nt":
+        with pytest.raises(ValidationError, match="project scope key mismatch"):
+            _capture(runtime, scope_key=SCOPE.swapcase(), idempotency_key="wrong-case-project")
     with pytest.raises(ValidationError):
         _capture(runtime, scope_key=r"D:\Different\Repo", idempotency_key="different-project")
 
