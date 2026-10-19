@@ -50,6 +50,18 @@ failure. The next full CI uses an explicit isolated RUNNER_TEMP child and
 preserves bounded failure-stage evidence; no budget, assertion, clock or Runtime
 behavior is changed to obtain a result. Its full outcome is not yet known.
 
+That full run, [39299483666](https://github.com/tsuchiyang/hippocampus-runtime/actions/runs/39299483666),
+is now preserved as **Windows 1767 passed, 3 failed**, 341.57 seconds. All three
+failures are variants of the evidence-sidecar regression: the new pytest request
+argument was not forwarded by its direct test caller, causing TypeError before
+the exercised Hook helper started. The original 13 failed nodes passed in this
+full run; their historical unique cause is not inferred from this result.
+Ubuntu again passed 747 cases/one explicit Windows-only skip and 44 actual-wheel
+cases. The two-line caller fix passed its original three cases and the related
+real Hook subprocess cases (7 passed, 12.93 seconds), with independent targeted
+review CLEAN. This failed full run is not converted to PASS and the corrected
+candidate still needs its own full CI result.
+
 ## Previous local Windows verification (preserved)
 
 At implementation commit `fdebc8a63a2d86c3dac68ead78f8ac15df7c9940`, the complete

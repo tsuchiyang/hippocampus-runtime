@@ -18,6 +18,7 @@ import test_retrieval_hook_process as hook_process
 )
 def test_deadline_evidence_survives_original_elapsed_assertion(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, requests: list[tuple[str, str]],
+    request: pytest.FixtureRequest,
 ) -> None:
     """Dropping or moving the sidecar after the deadline assertion loses evidence.
 
@@ -83,7 +84,7 @@ def test_deadline_evidence_survives_original_elapsed_assertion(
     ))
 
     with pytest.raises(AssertionError, match="Hook process exceeded shadow budget: 1600.0ms"):
-        hook_process.test_real_hook_subprocess_observes_shared_shadow_deadline_at_process_boundary(tmp_path)
+        hook_process.test_real_hook_subprocess_observes_shared_shadow_deadline_at_process_boundary(tmp_path, request)
 
     assert sidecar.is_file(), "deadline assertion must leave a readable evidence sidecar"
     evidence = json.loads(sidecar.read_text(encoding="utf-8"))
