@@ -2,6 +2,15 @@
 
 ## What the workflow does
 
+Actual private run
+[39303948377](https://github.com/tsuchiyang/hippocampus-runtime/actions/runs/39303948377)
+completed both jobs successfully at commit6b32f2a3a8acddb6f8b2ef658520fff9a9e2a67a,
+whose tree matches local candidate1b5d187eb4f37fb0219ddb61c0f5128f7b782363.
+Windows ran1771 full-source cases, Ubuntu747 local-core cases plus one explicit
+Windows-only skip, and each independently installed wheel ran44 repair/version
+cases. Exact times and limitations are in [current evidence](KNOWN_ISSUES.md).
+This is actual hosted evidence, not an inference from the YAML or local tests.
+
 The workflow targets GitHub-hosted Windows and Ubuntu, with a 30-minute cap for
 each job, read-only contents permissions, no saved checkout credentials and no
 publication step. It uses synthetic fixtures and loopback services, not a Codex
@@ -22,7 +31,7 @@ can retain their own writable temporary layout.
 A preceding private diagnostic pair passed the same 13 fixed nodes in both
 temporary layouts (system-temp 33.38 s; runner-temp 22.88 s). This is evidence
 about that small pair, not a proof that the drive caused previous full-suite
-failures. The explicit CI layout requires its own actual full-suite result;
+failures. The explicit CI layout has the actual full-suite result above;
 the original failures remain preserved. Failed tests include bounded safe phase
 sections and the synthetic installed-Hook sidecar; passing focused nodes are not
 counted as a full/release gate.

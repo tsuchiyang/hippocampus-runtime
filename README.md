@@ -5,7 +5,8 @@ Local memory and context recovery for coding agents, currently targeting Codex.
 [简体中文](README.zh-CN.md) · [Installation and operations](docs/OPERATIONS.md) · [Testing](docs/TESTING.md)
 
 **Experimental Alpha — local-first memory, not a promise of production reliability.**
-Public release still awaits maintainer approval and hosted CI; see
+The private Windows/Ubuntu CI checks have passed; public release still awaits
+maintainer approval. See
 [known issues and current evidence](docs/KNOWN_ISSUES.md).
 No Hook is registered by installing this package. Dense retrieval and active
 injection are not enabled by default. This is an independent community project,

@@ -2,7 +2,37 @@
 
 This is a locally prepared Alpha, not a published or production-certified release.
 
-## Current candidate: local verification, Windows hosted gate failed
+## Current Alpha candidate: private hosted checks passed
+
+Frozen local candidate `1b5d187eb4f37fb0219ddb61c0f5128f7b782363` and private
+GitHub commit `6b32f2a3a8acddb6f8b2ef658520fff9a9e2a67a` share the exact Git tree
+`9c415473dbd8c6ddc98bbd8c36aeba76887b55c5`. Actual push run
+[39303948377](https://github.com/tsuchiyang/hippocampus-runtime/actions/runs/39303948377),
+attempt1, completed successfully:
+
+- Windows full public suite: **1771 passed, 0 failed, 0 errors, 0 skipped**,
+  384.48 seconds. The separately installed actual wheel passed44 cases in16.22
+  seconds. Privacy/history, build and site-packages import checks succeeded.
+- Ubuntu limited local-core profile: **747 passed, 1 skipped**,14.07 seconds;
+  actual wheel44 passed in3.12 seconds. The skip remains the explicit
+  `Windows advisory lock contract`, not PASS or Linux injection certification.
+
+These overlapping counts are not combined. Runtime source and dependency
+metadata are unchanged from the separately bound local implementation83d1236.
+Functional classification fixtures explicitly control their local logical time;
+physical deadline/Hook tests retain real clocks and original assertions.
+Later documentation-only commits do not constitute another full-suite run.
+
+This supports technical preparation of an **experimental open-source Alpha**,
+not production, new real-host/model acceptance, universal latency or platform
+security certification. Public visibility/push, release/tag and repository
+metadata disclosure remain separate owner decisions. Dense/active are not
+enabled by default. Preserved historical failures below are not rewritten.
+
+## Preserved implementation and earlier hosted failures
+
+The progression below retains each earlier candidate's actual outcome. Its
+then-current/pending labels refer to those snapshots, not the final run above.
 
 Implementation `83d1236f1072a2425d1ec6af103111f6c4ef553b` passed the complete
 public Windows suite: **1770 passed, 0 failed, 0 errors, 0 skipped**, 263.27
