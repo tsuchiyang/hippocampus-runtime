@@ -17,9 +17,15 @@ The original export contained all 72 Runtime Python source modules, with only
 `__init__.py` version metadata changed from 0.1.0 to 0.1.0a1. Alpha hardening
 subsequently changed `retrieval/provider_health.py` and `retrieval/service.py`
 to carry the original absolute deadline through health-store lock preparation
-and retries, rather than restarting a sampled relative allowance. The other
-69 modules retain the base implementation bytes. Package metadata, user-facing
-documentation, test selection and CI are prepared specifically for this Alpha.
+and retries, rather than restarting a sampled relative allowance. At that stage,
+69 modules retained the base implementation bytes. Follow-up Windows CI
+hardening also changed `retrieval/cache_database.py` and reused its immutable
+expected-DDL oracle from `retrieval/provider_health.py`; actual database validity
+is still checked on every call. A further shadow orchestration fix passes the
+existing absolute query deadline into rerank instead of creating another budget.
+The current source therefore has 67 unchanged modules and five changed modules,
+including version metadata. Package metadata,
+user-facing documentation, test selection and CI are prepared for this Alpha.
 The new wheel/hash must not be confused with the earlier 0.1.0 blind candidate.
 Fourteen synthetic security-test literals are expressed as constant concatenation
 so automated credential scans do not mistake deliberate negative fixtures for

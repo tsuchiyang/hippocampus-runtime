@@ -76,3 +76,112 @@ def prompt_envelope_factory() -> Callable[[str, str], HookEnvelope]:
 @pytest.fixture
 def tool_envelope_factory() -> Callable[[str, str, str], HookEnvelope]:
     return _tool_envelope
+
+
+@pytest.fixture
+def semantic_functional_clock(monkeypatch: pytest.MonkeyPatch):
+    """Healthy logical time for semantic behavior tests, never latency evidence.
+
+    Keep real ledger/projection/index/worker/transaction/response validation.
+    Scope clock substitution to the two consumers, not the shared time module.
+    Tests of deadlines or real Hook wall-clock must not request this fixture.
+    """
+    import time
+    from types import SimpleNamespace
+    from codex_memory.retrieval import service, shadow
+
+    now_ns = lambda: 41_000_000_000
+    original_rebuild = service.RetrievalService.rebuild_semantic
+    original_catch_up = service.RetrievalService.catch_up_semantic
+
+    def rebuild_with_logical_clock(self, provider, config, **kwargs):
+        kwargs.setdefault("clock", now_ns)
+        return original_rebuild(self, provider, config, **kwargs)
+
+    def catch_up_with_logical_clock(self, provider, config, **kwargs):
+        kwargs.setdefault("clock", now_ns)
+        return original_catch_up(self, provider, config, **kwargs)
+
+    monkeypatch.setattr(service.RetrievalService, "rebuild_semantic", rebuild_with_logical_clock)
+    monkeypatch.setattr(service.RetrievalService, "catch_up_semantic", catch_up_with_logical_clock)
+    monkeypatch.setattr(shadow, "time", SimpleNamespace(monotonic_ns=now_ns))
+    monkeypatch.setattr(service, "time", SimpleNamespace(**{
+        **vars(time), "monotonic_ns": now_ns,
+    }))
+    return now_ns
+
+
+@pytest.fixture
+def p26_phase_trace(monkeypatch: pytest.MonkeyPatch):
+    """Bounded test-only ingress evidence; no payload/path or clock changes."""
+    from functools import wraps
+    import time
+    from codex_memory import cli
+    from codex_memory.retrieval import isolated_hook, selected_host
+
+    records = []
+
+    def measured(stage, operation, deadline=None):
+        started = time.perf_counter_ns()
+        error = None
+        try:
+            return operation()
+        except BaseException as exc:
+            error = type(exc).__name__
+            raise
+        finally:
+            if len(records) < 128:
+                cutoff = getattr(deadline, "deadline_ns", deadline)
+                records.append({
+                    "stage": stage,
+                    "elapsed_ms": (time.perf_counter_ns() - started) / 1_000_000,
+                    "remaining_ms": None if type(cutoff) is not int else
+                        (cutoff - time.monotonic_ns()) / 1_000_000,
+                    "exception_type": error,
+                })
+
+    def watch(module, name, stage):
+        original = getattr(module, name)
+
+        @wraps(original)
+        def observed(*args, **kwargs):
+            deadline = kwargs.get("deadline", kwargs.get("deadline_ns"))
+            if name == "_binding" and len(args) >= 4:
+                deadline = args[3]
+            return measured(stage, lambda: original(*args, **kwargs), deadline)
+
+        monkeypatch.setattr(module, name, observed)
+
+    for module, name, stage in (
+        (cli, "_resolve_repo_root", "root"),
+        (cli, "_construct_runtime", "runtime"),
+        (cli, "_dispatch", "dispatch"),
+        (isolated_hook, "_binding", "isolated-binding"),
+        (selected_host, "_binding", "selected-binding"),
+        (isolated_hook, "_legacy_and_source", "legacy"),
+        (isolated_hook, "prepare_isolated_packet", "prepare"),
+        (isolated_hook, "_write_wire", "wire"),
+    ):
+        watch(module, name, stage)
+
+    def watch_binding_directories(module, stage):
+        original = module._directories
+
+        def directories(*args, **kwargs):
+            actual = original(*args, **kwargs)
+
+            class HeldDirectories:
+                def __enter__(self):
+                    return measured(stage + "-enter", actual.__enter__, kwargs.get("deadline"))
+
+                def __exit__(self, *exc_info):
+                    return measured(stage + "-exit", lambda: actual.__exit__(*exc_info),
+                        kwargs.get("release_deadline", kwargs.get("deadline")))
+
+            return HeldDirectories()
+
+        monkeypatch.setattr(module, "_directories", directories)
+
+    watch_binding_directories(isolated_hook, "isolated-directories")
+    watch_binding_directories(selected_host, "selected-directories")
+    return records

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import threading
 import time
+from contextlib import closing
 from pathlib import Path
 
 import pytest
@@ -23,8 +24,11 @@ from retrieval_provider_fakes import FakeProvider
 
 def _health_store(tmp_path: Path, *, cooldown_ms: int = 100) -> ProviderHealthStore:
     database = tmp_path / "retrieval.sqlite3"
-    with connect_cache_database(database) as connection:
+    # sqlite3's context manager commits/rolls back, but does not close the
+    # connection. Finish fixture initialization before measuring any request.
+    with closing(connect_cache_database(database)) as connection:
         initialize_schema(connection)
+        connection.commit()
     return ProviderHealthStore(database, failure_threshold=2, cooldown_ms=cooldown_ms)
 
 
@@ -209,6 +213,7 @@ def test_short_remaining_budget_skips_provider_without_timeout_event(
     fingerprint = _fingerprint(provider)
     store = _health_store(tmp_path)
     current = [0]
+    wall_now_ms = 1_800_000_000_000
     clock = lambda: current[0]
     deadline = DeadlineBudget.start(100, now_ns=clock)
     original_acquire = store.acquire
@@ -225,7 +230,10 @@ def test_short_remaining_budget_skips_provider_without_timeout_event(
     if phase == "before_admission":
         current[0] = (100 - remaining_ms) * 1_000_000
     controller = ProviderCallController(
-        provider, deadline, store, fingerprint, now_ns=clock
+        provider, deadline, store, fingerprint, now_ns=clock,
+        # This state-machine test has not advanced durable lease time. Real
+        # inspection cost must not silently cross its independent 100ms expiry.
+        wall_clock_ms=lambda: wall_now_ms,
     )
     response = controller.dense_query(
         ProviderInput.from_text("query", 0, "query"), dimension=4
@@ -248,7 +256,7 @@ def test_short_remaining_budget_skips_provider_without_timeout_event(
         ).fetchone()[0]
     decision = original_acquire(
         fingerprint, ModelComponent.DENSE,
-        now_ms=time.time_ns() // 1_000_000,
+        now_ms=wall_now_ms,
     )
     if phase == "after_admission" and remaining_ms <= 10:
         assert unresolved == 1
@@ -448,9 +456,10 @@ def test_worker_self_cancels_at_provider_deadline_without_timeout_event(
 def test_parent_timeout_cancels_claimed_worker_before_provider_method_call(
     tmp_path: Path,
 ) -> None:
-    """A delayed method lookup cannot launch provider I/O after parent return."""
+    """Order a claimed lookup before expiry; no late provider I/O may start."""
     lookup_started = threading.Event()
     release_lookup = threading.Event()
+    current_ns = [0]
 
     class DelayedLookupProvider(FakeProvider):
         armed = False
@@ -458,6 +467,7 @@ def test_parent_timeout_cancels_claimed_worker_before_provider_method_call(
         def __getattribute__(self, name):  # type: ignore[no-untyped-def]
             if name == "embed_query" and object.__getattribute__(self, "armed"):
                 lookup_started.set()
+                current_ns[0] = 90_000_000
                 release_lookup.wait(2)
             return super().__getattribute__(name)
 
@@ -467,10 +477,13 @@ def test_parent_timeout_cancels_claimed_worker_before_provider_method_call(
     store = _health_store(tmp_path)
     controller = ProviderCallController(
         provider,
-        DeadlineBudget.start(150, now_ns=time.monotonic_ns),
+        DeadlineBudget.start(150, now_ns=lambda: current_ns[0]),
         store,
         fingerprint,
-        now_ns=time.monotonic_ns,
+        # Reach the claimed-worker boundary before advancing the original
+        # 90ms provider cutoff. Admission and cancellation are entirely real.
+        now_ns=lambda: current_ns[0],
+        wall_clock_ms=lambda: 1_800_000_000_000,
     )
 
     response = controller.dense_query(
@@ -665,18 +678,20 @@ def test_parent_never_waits_for_contended_start_gate_and_unknown_expires_once(
     release_gate = threading.Event()
     worker_clock_calls = [0]
     wall_now = 1_800_000_000_000
+    current_ns = [0]
 
     def clock() -> int:
         if threading.current_thread().name == "codex-memory-provider-dense_query":
             worker_clock_calls[0] += 1
             if worker_clock_calls[0] == 2:
                 gate_entered.set()
+                current_ns[0] = 90_000_000
                 release_gate.wait(2)
-        return time.monotonic_ns()
+        return current_ns[0]
 
     controller = ProviderCallController(
         provider,
-        DeadlineBudget.start(150, now_ns=time.monotonic_ns),
+        DeadlineBudget.start(150, now_ns=lambda: current_ns[0]),
         store,
         fingerprint,
         now_ns=clock,
@@ -842,6 +857,7 @@ def test_post_admission_release_failure_is_internal_health_unavailable(
 def test_record_failure_exception_is_structured_as_internal_health_unavailable(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
+    """Reach the injected settlement failure; this is not a latency test."""
     provider = FakeProvider({ModelComponent.DENSE: ProviderCallStatus.TIMEOUT})
     fingerprint = _fingerprint(provider)
     store = _health_store(tmp_path)
@@ -854,10 +870,11 @@ def test_record_failure_exception_is_structured_as_internal_health_unavailable(
     monkeypatch.setattr(store, "record_failure", unavailable_record)
     controller = ProviderCallController(
         provider,
-        DeadlineBudget.start(100, now_ns=time.monotonic_ns),
+        DeadlineBudget.start(100, now_ns=lambda: 0),
         store,
         fingerprint,
-        now_ns=time.monotonic_ns,
+        now_ns=lambda: 0,
+        wall_clock_ms=lambda: 1_800_000_000_000,
     )
 
     response = controller.dense_query(
@@ -865,6 +882,7 @@ def test_record_failure_exception_is_structured_as_internal_health_unavailable(
     )
 
     assert response.call.status is ProviderCallStatus.TIMEOUT
+    assert provider.call_counts[ProviderOperation.DENSE_QUERY] == 1
     assert controller.last_health_outcome is HealthWriteOutcome.NOT_PERSISTED
     assert controller.health_available is False
     assert controller.health_diagnostics[-1].phase == "record_failure"
@@ -1372,7 +1390,7 @@ def test_timeout_bookkeeping_does_not_wait_for_post_admission_verification(
 def test_completed_provider_lease_is_not_closed_by_a_contending_thread(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
 ) -> None:
-    """Only the controller thread that owns a retained SQLite lease may close it."""
+    """Completed model I/O does not settle its unexpired durable admission."""
     from codex_memory.retrieval import provider_control
 
     validation_entered = threading.Event()
@@ -1388,12 +1406,16 @@ def test_completed_provider_lease_is_not_closed_by_a_contending_thread(
     provider = FakeProvider()
     fingerprint = _fingerprint(provider)
     store = _health_store(tmp_path)
+    wall_now_ms = 1_800_000_000_000
     controller = ProviderCallController(
         provider,
-        DeadlineBudget.start(500, now_ns=time.monotonic_ns),
+        DeadlineBudget.start(500, now_ns=lambda: 0),
         store,
         fingerprint,
-        now_ns=time.monotonic_ns,
+        # Hold both semantic clocks while the test orders response validation
+        # and contention. Real-clock deadline coverage lives in the stall tests.
+        now_ns=lambda: 0,
+        wall_clock_ms=lambda: wall_now_ms,
     )
     item = ProviderInput.from_text("query", 0, "query")
     first_result: dict[str, object] = {}
@@ -1409,7 +1431,7 @@ def test_completed_provider_lease_is_not_closed_by_a_contending_thread(
     assert validation_entered.wait(2)
     try:
         contender = store.acquire(
-            fingerprint, ModelComponent.DENSE, now_ms=time.time_ns() // 1_000_000
+            fingerprint, ModelComponent.DENSE, now_ms=wall_now_ms
         )
     finally:
         release_validation.set()
@@ -1420,10 +1442,48 @@ def test_completed_provider_lease_is_not_closed_by_a_contending_thread(
     assert contender.allowed is False
     assert contender.status in {ProviderCallStatus.BUSY, ProviderCallStatus.UNAVAILABLE}
     after = store.acquire(
-        fingerprint, ModelComponent.DENSE, now_ms=time.time_ns() // 1_000_000
+        fingerprint, ModelComponent.DENSE, now_ms=wall_now_ms
     )
     assert after.allowed is True
     store.release(after)
+
+
+@pytest.mark.parametrize(("wall_offset_ms", "allowed"), [(99, False), (100, True)])
+def test_completed_unsettled_attempt_expires_only_at_its_durable_wall_cutoff(
+    tmp_path: Path, wall_offset_ms: int, allowed: bool,
+) -> None:
+    """Durable expiry may fence old results, but is not a confirmed timeout."""
+    store = _health_store(tmp_path)
+    completion = threading.Event()
+    wall_now_ms = 1_800_000_000_000
+    original = store.acquire(
+        "a" * 64, ModelComponent.DENSE, now_ms=wall_now_ms,
+        completion=completion,
+    )
+    assert original.allowed
+    completion.set()
+    contender = store.acquire(
+        "a" * 64, ModelComponent.DENSE,
+        now_ms=wall_now_ms + wall_offset_ms,
+    )
+    assert contender.allowed is allowed
+    if allowed:
+        assert contender.fencing_version == original.fencing_version + 1
+        assert store.record_success(original, now_ms=wall_now_ms + wall_offset_ms) is HealthWriteOutcome.NOT_PERSISTED
+        store.release(contender)
+        expected = [("expired_unknown", None), ("released", None)]
+    else:
+        assert contender.status is ProviderCallStatus.BUSY
+        assert contender.state == "unresolved"
+        assert store.record_success(original, now_ms=wall_now_ms + wall_offset_ms) is HealthWriteOutcome.PERSISTED
+        expected = [("success", "ok")]
+    with closing(connect_cache_database(store.database_path, readonly=True)) as db:
+        assert [tuple(row) for row in db.execute(
+            "SELECT outcome, provider_status FROM retrieval_provider_attempt_results ORDER BY result_seq"
+        )] == expected
+        assert db.execute(
+            "SELECT count(*) FROM retrieval_provider_health_events WHERE failure_kind = 'timeout'"
+        ).fetchone()[0] == 0
 
 
 def test_timeout_bookkeeping_is_synchronous_and_never_spawns_a_late_write(

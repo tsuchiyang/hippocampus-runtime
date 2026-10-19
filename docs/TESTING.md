@@ -29,6 +29,21 @@ idempotency, projection, deterministic retrieval, provider-control, timeout and
 recovery-transport regressions. Existing numerical budget and negative-path
 assertions are not relaxed for the public release.
 
+Functional semantic/FakeProvider tests explicitly opt into a fixed logical
+clock. They still execute the real ledger, projection, semantic build, dispatch,
+response validation, settlement, query and evaluator; they are not latency
+evidence. Durable admission state-machine tests control their independent wall
+clock as well as monotonic time, with separate 99/100 ms expiry/fencing cases.
+Otherwise inspection time can unintentionally turn an unexpired-lease case into
+an expired-unknown case. Actual Hook subprocess, stalled-provider, lock-contention
+and numerical wall-clock assertions retain their real clocks and original limits.
+
+Selected ingress tests attach at most 128 safe phase measurements to assertion
+failures. This opt-in test fixture forwards the actual calls and context exits;
+it changes no Runtime clock, deadline, result or output protocol. Its process-local
+imports mean those tests are not cold-start measurements. Real installed-entry
+and process-boundary tests remain separate, without that instrumentation.
+
 ## What was separated, and why
 
 The original engineering repository/history is preserved privately. It contains

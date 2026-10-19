@@ -11,6 +11,8 @@
   bounded raw/prompt/tool input and transient SQLite sidecar handling.
 - Carry the shared absolute deadline through provider-health lock preparation
   and retries; preserve admission, settlement, safety checks and original budgets.
+- Reuse only immutable expected schema definitions, never observed database
+  validity; pass the original shadow-query deadline into rerank orchestration.
 - Set Alpha version metadata to 0.1.0a1; this is not a new claim of production
   certification or a guarantee of cross-platform host integration.
 - Dense remains optional/default-off. No automatic Hook registration, real model

@@ -33,7 +33,7 @@ def _config(provider: FakeProvider) -> SemanticConfig:
     )
 
 
-def test_fake_pipeline_uses_legal_ledger_projection_semantic_build_and_real_queries(tmp_path: Path) -> None:
+def test_fake_pipeline_uses_legal_ledger_projection_semantic_build_and_real_queries(tmp_path: Path, semantic_functional_clock) -> None:
     """Would fail if a benchmark could obtain final ranks from relevance labels."""
     from codex_memory.retrieval.benchmark import load_benchmark_fixture
     from codex_memory.retrieval.benchmark_pipeline import run_benchmark_pipeline
@@ -119,7 +119,7 @@ def test_fixture_repository_rejects_a_different_git_root(tmp_path: Path, monkeyp
     assert caught.value.status == "fixture_git_root"
 
 
-def test_pipeline_query_override_changes_real_selected_candidates_not_relevance_labels(tmp_path: Path) -> None:
+def test_pipeline_query_override_changes_real_selected_candidates_not_relevance_labels(tmp_path: Path, semantic_functional_clock) -> None:
     """Would fail if changing a query left a relevance-derived result untouched."""
     from codex_memory.retrieval.benchmark import load_benchmark_fixture
     from codex_memory.retrieval.benchmark_pipeline import run_benchmark_pipeline
@@ -136,7 +136,7 @@ def test_pipeline_query_override_changes_real_selected_candidates_not_relevance_
     assert normal.runs[0].candidate_trace["exact-record-id"] != changed.runs[0].candidate_trace["exact-record-id"]
 
 
-def test_prepared_fixture_scope_matches_fresh_child_git_root(tmp_path: Path) -> None:
+def test_prepared_fixture_scope_matches_fresh_child_git_root(tmp_path: Path, semantic_functional_clock) -> None:
     """Windows short/long temp aliases must not change the project scope key."""
     from codex_memory.retrieval.benchmark import load_benchmark_fixture
     from codex_memory.retrieval.benchmark_pipeline import prepare_benchmark_pipeline
@@ -161,9 +161,9 @@ def test_prepared_fixture_scope_matches_fresh_child_git_root(tmp_path: Path) -> 
 
 
 def test_prepared_fixture_repeats_real_pipeline_deterministically_and_query_reaches_provider(
-    tmp_path: Path,
+    tmp_path: Path, semantic_functional_clock,
 ) -> None:
-    """One established fixture, not two rebuilt databases, proves real E2E repeatability."""
+    """Real E2E ordering under fixed logical time, not wall-clock qualification."""
     from codex_memory.retrieval.benchmark import evaluate_profiles, load_benchmark_fixture
     from codex_memory.retrieval.benchmark_pipeline import (
         _run_profile,
@@ -223,7 +223,7 @@ def test_prepared_fixture_repeats_real_pipeline_deterministically_and_query_reac
 
 
 def test_prepared_fixture_temporary_candidates_are_session_scoped_and_terminal_candidates_hidden(
-    tmp_path: Path,
+    tmp_path: Path, semantic_functional_clock,
 ) -> None:
     """Candidate capture/review uses the append-only API, not a test-only table write."""
     from codex_memory import database
@@ -276,7 +276,7 @@ def test_prepared_fixture_temporary_candidates_are_session_scoped_and_terminal_c
     assert terminal.candidate_id not in {candidate.candidate_id for candidate in terminal_session.candidates}
 
 
-def test_prepared_fixture_catches_up_unvectorized_record_without_semantic_rows(tmp_path: Path) -> None:
+def test_prepared_fixture_catches_up_unvectorized_record_without_semantic_rows(tmp_path: Path, semantic_functional_clock) -> None:
     """A post-build permanent record remains deterministically visible without vectors."""
     from codex_memory.retrieval.benchmark import load_benchmark_fixture
     from codex_memory.retrieval.benchmark_pipeline import prepare_benchmark_pipeline
@@ -312,7 +312,7 @@ def test_prepared_fixture_catches_up_unvectorized_record_without_semantic_rows(t
         ).fetchone()[0] == 0
 
 
-def test_pipeline_benchmark_consumes_actual_reranked_order_and_trace(tmp_path: Path) -> None:
+def test_pipeline_benchmark_consumes_actual_reranked_order_and_trace(tmp_path: Path, semantic_functional_clock) -> None:
     from codex_memory.retrieval.benchmark import load_benchmark_fixture
     from codex_memory.retrieval.benchmark_pipeline import run_benchmark_pipeline
 
@@ -350,7 +350,7 @@ def test_pipeline_benchmark_consumes_actual_reranked_order_and_trace(tmp_path: P
     )
 
 
-def test_pipeline_component_status_uses_query_time_provider_trace(tmp_path: Path) -> None:
+def test_pipeline_component_status_uses_query_time_provider_trace(tmp_path: Path, semantic_functional_clock) -> None:
     from codex_memory.retrieval.benchmark import load_benchmark_fixture
     from codex_memory.retrieval.benchmark_pipeline import run_benchmark_pipeline
 
@@ -390,6 +390,7 @@ def test_missing_configured_factory_is_blocked_without_fake_fallback(tmp_path: P
 def test_pipeline_settlement_failure_discards_semantic_results_and_keeps_p2_2_floor(
     tmp_path: Path,
     monkeypatch,
+    semantic_functional_clock,
 ) -> None:
     """A post-call health settlement failure cannot change offline selections."""
     from codex_memory.retrieval.benchmark import load_benchmark_fixture
@@ -463,7 +464,7 @@ def test_pipeline_settlement_failure_discards_semantic_results_and_keeps_p2_2_fl
 
 
 def test_pipeline_fixture_remains_available_for_verified_semantic_reopen_in_child_process(
-    tmp_path: Path,
+    tmp_path: Path, semantic_functional_clock,
 ) -> None:
     """A child uses the installed runtime, not an in-process cached result."""
     from codex_memory.retrieval.benchmark import load_benchmark_fixture

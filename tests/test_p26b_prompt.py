@@ -460,7 +460,7 @@ def test_assembly_read_uses_existing_budget_not_default_five_second_lock_wait(pr
     assert observed == [0], "assembly must not reacquire the default 5000ms lock wait"
 
 
-def test_provider_configuration_cannot_construct_optional_models_in_prompt_lab(prompt_lab, monkeypatch):
+def test_provider_configuration_cannot_construct_optional_models_in_prompt_lab(prompt_lab, monkeypatch, p26_phase_trace):
     from codex_memory.retrieval import config
 
     def forbidden(*args, **kwargs):
@@ -468,7 +468,8 @@ def test_provider_configuration_cannot_construct_optional_models_in_prompt_lab(p
 
     monkeypatch.setattr(config, "provider_from_config", forbidden)
     code, _stdout, stderr = _invoke(prompt_lab)
-    assert code == 0 and _metadata(stderr)["delivery"] == "emitted"
+    assert code == 0, (stderr, p26_phase_trace)
+    assert _metadata(stderr)["delivery"] == "emitted", (stderr, p26_phase_trace)
 
 
 def test_prompt_scope_and_temporary_session_filters_survive_actual_emission(prompt_lab):

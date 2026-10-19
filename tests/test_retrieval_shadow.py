@@ -7,7 +7,7 @@ from dataclasses import replace
 import pytest
 
 from codex_memory.retrieval.shadow import ShadowComparison, shadow_run_id
-from codex_memory.retrieval.provider import ProviderCallStatus
+from codex_memory.retrieval.provider import ProviderCallStatus, ProviderOperation
 
 
 def test_shadow_run_identity_is_deterministic_and_does_not_include_prompt() -> None:
@@ -522,7 +522,58 @@ def test_active_shadow_request_is_rejected_before_any_provider_operation(runtime
     assert (comparison.recorded, comparison.reason) == (False, "active_rejected")
 
 
-def test_wrong_same_dimension_semantic_fingerprints_contribute_nothing_or_rerank(runtime) -> None:
+def test_shadow_rerank_does_not_restart_an_expired_query_budget(
+    runtime, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Expiry before rerank is not an attempted provider timeout or new budget."""
+    from contextlib import closing
+    from types import SimpleNamespace
+    from codex_memory.retrieval import service as service_module, shadow
+    from codex_memory.retrieval.cache_database import connect_cache_database
+    from codex_memory.retrieval.deadline import DeadlineBudget
+    from codex_memory.retrieval.provider import ProviderOperation
+    from codex_memory.retrieval.service import RetrievalService
+    from retrieval_provider_fakes import FakeProvider
+
+    paths, config, request = _shadow_component_case(runtime)
+    floor = RetrievalService(paths).query(request)
+    clock = [41_000_000_000]
+    now_ns = lambda: clock[0]
+    budget = DeadlineBudget.start(500, now_ns=now_ns)
+    monkeypatch.setattr(shadow, "time", SimpleNamespace(monotonic_ns=now_ns))
+    monkeypatch.setattr(service_module, "time", SimpleNamespace(**{
+        **vars(time), "monotonic_ns": now_ns,
+    }))
+    original = RetrievalService.query_with_rerank
+
+    def enter_at_original_cutoff(self, *args, **kwargs):
+        # Deterministic scheduling seam after document preparation. Nothing
+        # changes the production deadline or bypasses the real rerank consumer.
+        clock[0] = budget.deadline_ns
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(RetrievalService, "query_with_rerank", enter_at_original_cutoff)
+    provider = FakeProvider()
+    outcome = shadow._shadow_query(
+        paths=paths, request=request, provider=provider, semantic_config=config,
+        disable_dense=True, disable_sparse=True, disable_reranker=False,
+        deadline=budget,
+    )
+
+    assert outcome.provider_trace == ({
+        "component": "reranker", "operation": "rerank", "status": "deadline_exhausted",
+    },)
+    assert outcome.result == floor
+    assert outcome.reranked_result is None
+    assert provider.call_counts[ProviderOperation.RERANK] == 0
+    with closing(connect_cache_database(paths.database_path, readonly=True)) as db:
+        assert db.execute("SELECT count(*) FROM retrieval_provider_attempt_admissions").fetchone()[0] == 0
+        assert db.execute("SELECT count(*) FROM retrieval_provider_health_events").fetchone()[0] == 0
+
+
+def test_wrong_same_dimension_semantic_fingerprints_contribute_nothing_or_rerank(
+    runtime, semantic_functional_clock,
+) -> None:
     """Response shape alone cannot authorize a model output for semantic fusion."""
     from codex_memory.retrieval.config import SemanticConfig
     from codex_memory.retrieval.contracts import CandidateChannel, RetrievalMode, RetrievalRequest, RetrievalScope
@@ -650,7 +701,9 @@ def test_active_generation_provider_identity_mismatch_blocks_semantic_calls(runt
     "status",
     tuple(value for value in ProviderCallStatus if value is not ProviderCallStatus.OK),
 )
-def test_dense_non_ok_provider_status_is_preserved_in_shadow_trace(runtime, status) -> None:  # type: ignore[no-untyped-def]
+def test_dense_non_ok_provider_status_is_preserved_in_shadow_trace(
+    runtime, status, semantic_functional_clock,
+) -> None:  # type: ignore[no-untyped-def]
     """An unavailable/busy/timeout result is not evidence of an identity mismatch."""
     from codex_memory.retrieval.config import SemanticConfig
     from codex_memory.retrieval.contracts import CandidateChannel, RetrievalMode, RetrievalRequest, RetrievalScope
@@ -693,6 +746,9 @@ def test_dense_non_ok_provider_status_is_preserved_in_shadow_trace(runtime, stat
     assert outcome.provider_trace == ({
         "component": "dense", "operation": "dense_query", "status": status.value,
     },)
+    # A pre-dispatch refusal can share a provider status (for example BUSY).
+    # It must not satisfy this response-propagation test without real dispatch.
+    assert faulty.call_counts[ProviderOperation.DENSE_QUERY] == 1
     assert all(CandidateChannel.DENSE not in trace.source_channels for trace in outcome.result.trace)
 
 

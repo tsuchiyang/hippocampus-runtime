@@ -568,6 +568,7 @@ def _shadow_query(
                 expected_model_fingerprint=semantic_config.expected_reranker_fingerprint,
                 provider_controller=controller,
                 base_result=result,
+                deadline=budget,
             )
             if observation.rerank is not None:
                 trace.append(_trace("reranker", ProviderOperation.RERANK, observation.rerank.status.value))

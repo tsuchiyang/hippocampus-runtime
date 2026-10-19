@@ -2,7 +2,70 @@
 
 This is a locally prepared Alpha, not a published or production-certified release.
 
-## Current local Windows verification
+## Current candidate: local verification, hosted result pending
+
+Implementation `83d1236f1072a2425d1ec6af103111f6c4ef553b` passed the complete
+public Windows suite: **1770 passed, 0 failed, 0 errors, 0 skipped**, 263.27
+seconds. Start/end HEAD and tree matched; the checkout/index were clean. The
+affected six-file regression separately passed 169 cases and the independent
+targeted code review was CLEAN. These overlapping counts are not added together.
+Reporting-only commits after this implementation do not constitute a rerun.
+
+The new deterministic counterexample proves that shadow rerank could create a
+fresh query budget after the original deadline. The original deadline is now
+forwarded; no inner budget or physical latency assertion was enlarged. The test
+proves the already-expired case, not the unique cause of a past hosted failure.
+The existing controller-reserve edge still maps a pre-dispatch exhaustion to
+rerank TIMEOUT; this change does not claim to resolve every such status mapping.
+Optional rerank remains disabled by default.
+
+State-machine fixtures previously froze monotonic time while durable lease wall
+time advanced through a 100 ms expiry. Their clocks are now explicitly controlled,
+with real 99/100 ms fencing/expired-unknown coverage. Fake semantic functionality
+uses an opt-in logical clock and checks actual dispatch, not an injected ranking.
+Real Hook, stall, lock and numerical wall-clock tests keep their original clocks
+and limits. Bounded ingress measurements improve future failure evidence without
+changing Runtime policy; they do not establish cold-start performance.
+
+The matching new private hosted run is still required. Prior Windows hosted
+failures below remain preserved and are not erased by this local PASS.
+
+## Previous local Windows verification (preserved)
+
+At implementation commit `fdebc8a63a2d86c3dac68ead78f8ac15df7c9940`, the complete
+public Windows suite passed **1767 tests, 0 failed, 0 errors, 0 skipped** in
+283.03 seconds. Start/end HEAD matched and the checkout/index were clean.
+The separate actual-wheel recovery/version regressions passed all 44 cases;
+their overlapping cases are not added to the source-suite count. Targeted
+independent review of the seven-file hardening change was CLEAN.
+
+The matching private hosted candidate is
+`d96638b859661a2baa88cbac9552099b70918a9d`, with identical Git tree
+`a5699ae96dfc26515ad20db8329b979573d17f03`. Its new Actions run is
+[39285048474](https://github.com/tsuchiyang/hippocampus-runtime/actions/runs/39285048474).
+The actual hosted outcome was **failure**:
+
+- Ubuntu local-core profile: **747 passed, 1 skipped**, 14.74 seconds; the
+  separately installed wheel passed 44 cases in 3.04 seconds. Privacy/build and
+  actual-wheel import checks succeeded. The skip remains the explicitly
+  Windows-only advisory-lock contract.
+- Windows full public suite: **1742 passed, 25 failed, 0 skipped**, 1050.24
+  seconds. Following build/privacy/wheel steps were skipped after that failure.
+  Failures span prompt/compact setup, semantic benchmark/shadow expiry,
+  provider admission/start/settlement and lease/control expectations. Two
+  existing 200 ms assertions observed 313 ms and 281 ms. These cannot all be
+  classified as harmless scheduling noise or as one confirmed Runtime defect.
+
+Earlier status API snapshots reported queued/in-progress states that lagged
+the raw execution logs. They are retained as API observations, not evidence
+that execution had not started. The raw Ubuntu log proves its work completed
+before some queued snapshots. No cause of that status discrepancy is claimed.
+
+All prior failed logs remain unchanged; no identical rerun was started to
+replace this failed result. The local success and targeted CLEAN review do not
+establish a passing Windows-hosted/public gate. Publication remains on hold.
+
+## Earlier local Windows verification (preserved)
 
 The complete public Windows suite at implementation commit
 `5b697c4916b51f39941f5846823b9a489393ce59` finished with **1763 passed,

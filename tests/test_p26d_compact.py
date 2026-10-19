@@ -71,27 +71,27 @@ def invoke(lab, command, event, **extras):
 
 
 @pytest.mark.parametrize("cache_absent", [False, True])
-def test_compact_profile_real_checkpoint_recovery_and_fresh_window(compact_lab, cache_absent):
+def test_compact_profile_real_checkpoint_recovery_and_fresh_window(compact_lab, cache_absent, p26_phase_trace):
     runtime, marker, hooks = compact_lab
     from codex_memory.retrieval.selected_host import hook_definition
     assert hook_definition(Path(marker["runtime_entry"]), compact_cycle=True) == hooks
     rc, out, err = invoke(compact_lab, "user-prompt-submit", "UserPromptSubmit",
         turn_id="before", prompt="What is the selected host verification code?")
-    assert rc == 0, err
+    assert rc == 0, (err, p26_phase_trace)
     assert json.loads(err)["delivery"] == "emitted"
     assert current_context_id(runtime.connection, session_id="selected-session") == "startup"
     for command, event in (("pre-compact", "PreCompact"), ("post-compact", "PostCompact")):
         rc, out, err = invoke(compact_lab, command, event, turn_id="compact-turn", trigger="manual")
-        assert (rc, json.loads(out), err) == (0, {"continue": True}, "")
+        assert (rc, json.loads(out), err) == (0, {"continue": True}, ""), (command, event, rc, out, err, p26_phase_trace)
     rc, recovered, err = invoke(compact_lab, "session-start", "SessionStart", source="compact")
-    assert rc == 0 and not err
+    assert rc == 0 and not err, (err, p26_phase_trace)
     checkpoint = current_context_id(runtime.connection, session_id="selected-session")
     assert checkpoint.startswith("cp_") and checkpoint in recovered
     if cache_absent:
         RetrievalPaths.for_repo(runtime.paths.repo_root).database_path.unlink()
     rc, fresh, err = invoke(compact_lab, "user-prompt-submit", "UserPromptSubmit",
         turn_id="after", prompt="What is the selected host verification code?")
-    assert rc == 0, err
+    assert rc == 0, (err, p26_phase_trace)
     assert json.loads(err)["delivery"] == ("legacy_fallback" if cache_absent else "emitted")
     assert checkpoint in fresh and 'HOST-P26C-EXAMPLE' in fresh
     rows = runtime.connection.execute("SELECT event_name FROM events ORDER BY event_id").fetchall()
