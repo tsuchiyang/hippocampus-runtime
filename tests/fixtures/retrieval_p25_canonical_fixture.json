@@ -1,0 +1,510 @@
+{
+  "format": "codex-memory.p25-canonical-fixture.v1",
+  "session_id": "p25_session",
+  "turn_id": "p25_turn",
+  "context_id": "startup",
+  "records": [
+    {
+      "label": "ledger_wal",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "storage.wal",
+      "statement": "Use SQLite WAL for the archive ledger and commit durable events before checkpoints.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "blob_sha",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "storage.blob",
+      "statement": "BlobStore addresses exact UTF-8 packet bytes by SHA-256.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "cache_drop",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "storage.cache",
+      "statement": "Deleting the retrieval cache preserves the canonical ledger and durable injection manifests.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "receipt",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "storage.receipt",
+      "statement": "A saved packet is prepared evidence, not acknowledgement from a model.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "symbol_open",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "symbols.open",
+      "statement": "open_verified_canonical_snapshot validates read-only ledger state.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "symbol_render",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "symbols.render",
+      "statement": "render_phase2_packet emits complete evidence records inside the hard character cap.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "symbol_controller",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "symbols.controller",
+      "statement": "ProviderCallController preserves pre-call admission and bounded optional inference.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "symbol_context",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "symbols.context",
+      "statement": "current_context_id changes after committed compaction recovery.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "meaning_delivery",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "meaning.delivery",
+      "statement": "A courier dispatch receipt does not prove that the recipient read the letter.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "meaning_truth",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "meaning.truth",
+      "statement": "The archive is authoritative; secondary lookup copies may be thrown away and reconstructed.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "meaning_safety",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "meaning.safety",
+      "statement": "Optional enhancements must fail safely while the original recovery remains usable.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "meaning_unknown",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "meaning.unknown",
+      "statement": "Inability to inspect evidence is uncertainty, not proof that its contents are false.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "state_current",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "lifecycle.transport",
+      "statement": "Use the named-pipe adapter for transport in the current fictional project.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "state_invalid",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "lifecycle.transport-old",
+      "statement": "Use the legacy UDP transport for the current fictional project.",
+      "lifecycle": "invalidated",
+      "provenance": "direct"
+    },
+    {
+      "label": "state_closed",
+      "record_type": "assumption",
+      "scope": "project",
+      "topic_key": "lifecycle.finished",
+      "statement": "Investigate the finished transport migration.",
+      "lifecycle": "closed",
+      "provenance": "direct"
+    },
+    {
+      "label": "state_superseded",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "lifecycle.transport-prior",
+      "statement": "Use the deprecated TCP adapter for transport.",
+      "lifecycle": "superseded",
+      "provenance": "direct",
+      "superseded_by": "state_current"
+    },
+    {
+      "label": "scope_project",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "isolation.project",
+      "statement": "The project cobalt marker belongs only to this project.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "scope_workspace",
+      "record_type": "decision",
+      "scope": "workspace",
+      "topic_key": "isolation.workspace",
+      "statement": "The workspace cobalt marker is shared only with its explicit workspace.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "scope_foreign",
+      "record_type": "decision",
+      "scope": "other_project",
+      "topic_key": "isolation.foreign",
+      "statement": "The foreign cobalt marker is outside this project's scope.",
+      "lifecycle": "active",
+      "provenance": "direct"
+    },
+    {
+      "label": "temp_here",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "temporary.context",
+      "statement": "The cobalt investigation is unfinished in this session.",
+      "lifecycle": "active",
+      "provenance": "temporary",
+      "session_id": "p25_session"
+    },
+    {
+      "label": "temp_other",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "temporary.foreign",
+      "statement": "The cobalt investigation belongs to a different session.",
+      "lifecycle": "active",
+      "provenance": "temporary",
+      "session_id": "p25_other"
+    },
+    {
+      "label": "promoted",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "provenance.review",
+      "statement": "Persist reviewed promotion provenance for the violet storage decision.",
+      "lifecycle": "active",
+      "provenance": "promoted"
+    },
+    {
+      "label": "promoted_long",
+      "record_type": "decision",
+      "scope": "project",
+      "topic_key": "provenance.review-long",
+      "statement": "Use the violet archive with all reviewed origin references retained.",
+      "lifecycle": "active",
+      "provenance": "promoted",
+      "evidence_count": 8
+    },
+    {
+      "label": "constitution",
+      "record_type": "constitution",
+      "scope": "project",
+      "topic_key": "constitution.boundary",
+      "statement": "Never treat optional retrieval scores as authority to alter canonical history.",
+      "lifecycle": "active",
+      "provenance": "certified"
+    },
+    {
+      "label": "constitution_large",
+      "record_type": "constitution",
+      "scope": "project",
+      "topic_key": "constitution.capacity",
+      "statement": "Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole. Complete mandatory evidence must remain whole.",
+      "lifecycle": "active",
+      "provenance": "certified"
+    }
+  ],
+  "scenarios": {
+    "exact_01": {
+      "group": "exact",
+      "split": "development",
+      "record_labels": [
+        "ledger_wal",
+        "receipt"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "exact_02": {
+      "group": "exact",
+      "split": "development",
+      "record_labels": [
+        "ledger_wal",
+        "blob_sha",
+        "receipt",
+        "cache_drop"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "exact_03": {
+      "group": "exact",
+      "split": "held-out",
+      "record_labels": [
+        "ledger_wal",
+        "blob_sha",
+        "cache_drop",
+        "receipt",
+        "symbol_open",
+        "symbol_render",
+        "symbol_controller",
+        "symbol_context"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "exact_04": {
+      "group": "exact",
+      "split": "held-out",
+      "record_labels": [
+        "receipt",
+        "ledger_wal",
+        "blob_sha",
+        "cache_drop"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "symbol_01": {
+      "group": "symbol",
+      "split": "development",
+      "record_labels": [
+        "symbol_open",
+        "symbol_render"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "symbol_02": {
+      "group": "symbol",
+      "split": "development",
+      "record_labels": [
+        "symbol_open",
+        "symbol_render",
+        "symbol_controller",
+        "symbol_context"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "symbol_03": {
+      "group": "symbol",
+      "split": "held-out",
+      "record_labels": [
+        "symbol_open",
+        "symbol_render",
+        "symbol_controller",
+        "symbol_context",
+        "ledger_wal",
+        "blob_sha",
+        "cache_drop",
+        "receipt"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "symbol_04": {
+      "group": "symbol",
+      "split": "held-out",
+      "record_labels": [
+        "symbol_context",
+        "symbol_open"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "semantic_01": {
+      "group": "semantic",
+      "split": "development",
+      "record_labels": [
+        "meaning_delivery",
+        "meaning_truth",
+        "meaning_unknown",
+        "meaning_safety"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "semantic_02": {
+      "group": "semantic",
+      "split": "development",
+      "record_labels": [
+        "meaning_delivery",
+        "meaning_truth",
+        "meaning_unknown",
+        "meaning_safety"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "semantic_03": {
+      "group": "semantic",
+      "split": "held-out",
+      "record_labels": [
+        "meaning_delivery",
+        "meaning_truth",
+        "meaning_unknown",
+        "meaning_safety"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "semantic_04": {
+      "group": "semantic",
+      "split": "held-out",
+      "record_labels": [
+        "meaning_delivery",
+        "meaning_truth",
+        "meaning_unknown",
+        "meaning_safety"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "state_01": {
+      "group": "state",
+      "split": "development",
+      "record_labels": [
+        "state_current",
+        "state_invalid"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "state_02": {
+      "group": "state",
+      "split": "development",
+      "record_labels": [
+        "state_current",
+        "state_closed"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "state_03": {
+      "group": "state",
+      "split": "held-out",
+      "record_labels": [
+        "state_superseded",
+        "state_current"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "state_04": {
+      "group": "state",
+      "split": "held-out",
+      "record_labels": [
+        "state_superseded",
+        "state_current",
+        "state_closed",
+        "state_invalid"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "scope_01": {
+      "group": "scope",
+      "split": "development",
+      "record_labels": [
+        "scope_project",
+        "scope_foreign"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "scope_02": {
+      "group": "scope",
+      "split": "development",
+      "record_labels": [
+        "scope_workspace",
+        "scope_project",
+        "scope_foreign"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "scope_03": {
+      "group": "scope",
+      "split": "held-out",
+      "record_labels": [
+        "temp_here",
+        "temp_other"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "scope_04": {
+      "group": "scope",
+      "split": "held-out",
+      "record_labels": [
+        "scope_project",
+        "scope_workspace",
+        "scope_foreign",
+        "temp_here",
+        "temp_other"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "provenance_01": {
+      "group": "provenance",
+      "split": "development",
+      "record_labels": [
+        "constitution",
+        "receipt"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "provenance_02": {
+      "group": "provenance",
+      "split": "development",
+      "record_labels": [
+        "promoted",
+        "receipt"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "provenance_03": {
+      "group": "provenance",
+      "split": "held-out",
+      "record_labels": [
+        "promoted_long",
+        "receipt"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "complete"
+    },
+    "provenance_04": {
+      "group": "provenance",
+      "split": "held-out",
+      "record_labels": [
+        "constitution_large"
+      ],
+      "max_chars": 4000,
+      "expected_outcome": "safe_budget_fallback"
+    }
+  }
+}

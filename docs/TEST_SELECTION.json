@@ -1,0 +1,666 @@
+{
+  "source_commit": "548d06edd481d1d7d08bfe1509238695dd81da1a",
+  "runtime_base_commit": "ee2b0a3e445e9b226f3e9d843817d0d76ec16971",
+  "selected_test_files": [
+    "tests/conftest.py",
+    "tests/fixtures/retrieval_p23_benchmark.jsonl",
+    "tests/fixtures/retrieval_p23_canonical_fixture.json",
+    "tests/fixtures/retrieval_p25_canonical_fixture.json",
+    "tests/fixtures/retrieval_p25_native_tasks.json",
+    "tests/fixtures/retrieval_p25_queries.jsonl",
+    "tests/retrieval_provider_fakes.py",
+    "tests/test_blind_report_regressions.py",
+    "tests/test_blob_store.py",
+    "tests/test_candidate_memory.py",
+    "tests/test_candidate_schema.py",
+    "tests/test_checkpoint.py",
+    "tests/test_cli.py",
+    "tests/test_cli_startup.py",
+    "tests/test_event_store.py",
+    "tests/test_git_capture.py",
+    "tests/test_hook_input.py",
+    "tests/test_hook_memory_integration.py",
+    "tests/test_injection_benchmark.py",
+    "tests/test_injection_explain.py",
+    "tests/test_injection_manifest.py",
+    "tests/test_injection_shadow.py",
+    "tests/test_injection_store.py",
+    "tests/test_ledger_cli.py",
+    "tests/test_memory_authority.py",
+    "tests/test_memory_cli.py",
+    "tests/test_memory_context.py",
+    "tests/test_memory_evidence.py",
+    "tests/test_memory_review.py",
+    "tests/test_memory_scope.py",
+    "tests/test_memory_security.py",
+    "tests/test_p26_audit_preflight.py",
+    "tests/test_p26a_cli.py",
+    "tests/test_p26b_prompt.py",
+    "tests/test_p26c_selected_host.py",
+    "tests/test_p26d_compact.py",
+    "tests/test_p26d_failure_matrix.py",
+    "tests/test_p26d_generation_failure.py",
+    "tests/test_p26d_promotion_race.py",
+    "tests/test_p26d_required_payload_io.py",
+    "tests/test_p26d_write_contention.py",
+    "tests/test_package_smoke.py",
+    "tests/test_project_memory_config.py",
+    "tests/test_project_scope_migration.py",
+    "tests/test_recovery.py",
+    "tests/test_retrieval_assembler.py",
+    "tests/test_retrieval_benchmark.py",
+    "tests/test_retrieval_benchmark_pipeline.py",
+    "tests/test_retrieval_bm25.py",
+    "tests/test_retrieval_cache_database.py",
+    "tests/test_retrieval_cli.py",
+    "tests/test_retrieval_config.py",
+    "tests/test_retrieval_contracts.py",
+    "tests/test_retrieval_deadline.py",
+    "tests/test_retrieval_dense.py",
+    "tests/test_retrieval_documents.py",
+    "tests/test_retrieval_evidence_pack.py",
+    "tests/test_retrieval_exact.py",
+    "tests/test_retrieval_fusion.py",
+    "tests/test_retrieval_hook_evidence.py",
+    "tests/test_retrieval_hook_process.py",
+    "tests/test_retrieval_identity_binding.py",
+    "tests/test_retrieval_indexer.py",
+    "tests/test_retrieval_isolation.py",
+    "tests/test_retrieval_local_http_provider.py",
+    "tests/test_retrieval_mandatory.py",
+    "tests/test_retrieval_packet_integration.py",
+    "tests/test_retrieval_paths.py",
+    "tests/test_retrieval_project_scope_migration.py",
+    "tests/test_retrieval_projection.py",
+    "tests/test_retrieval_provider.py",
+    "tests/test_retrieval_provider_control.py",
+    "tests/test_retrieval_provider_durable_admission.py",
+    "tests/test_retrieval_provider_health.py",
+    "tests/test_retrieval_provider_timeout.py",
+    "tests/test_retrieval_query.py",
+    "tests/test_retrieval_recent.py",
+    "tests/test_retrieval_render.py",
+    "tests/test_retrieval_rerank.py",
+    "tests/test_retrieval_schema_v2.py",
+    "tests/test_retrieval_schema_v3.py",
+    "tests/test_retrieval_semantic_acceptance.py",
+    "tests/test_retrieval_semantic_index.py",
+    "tests/test_retrieval_semantic_paths.py",
+    "tests/test_retrieval_semantic_store.py",
+    "tests/test_retrieval_service.py",
+    "tests/test_retrieval_shadow.py",
+    "tests/test_retrieval_sparse.py",
+    "tests/test_retrieval_symbols.py",
+    "tests/test_runtime_paths.py",
+    "tests/test_structured_ledger.py",
+    "tests/test_transcript.py",
+    "tests/test_windows_file_api_binding.py"
+  ],
+  "archived_test_files": [
+    {
+      "file": "tests/p25_retired_profile_fixture.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_evidence_packaging.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_injection_host_verifier.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_injection_shadow_verifier.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_live_compact_verifier.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_live_memory_verifier.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_acceptance_observer.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_archived_current_workspace.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_archived_workspace_identity.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_cache_generation.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_cache_refresh_06.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_cache_refresh_12.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_cache_refresh_13.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_cache_refresh_14.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_cache_refresh_15.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_cache_refresh_16.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_cache_refresh_17.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_canonical_certification.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_certification_commands.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_contract_b.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_current_entry_20261008.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_current_entry_58717.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_current_entry_58936.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_current_home_20261008.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_current_regression_20261008.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_current_workspace_execution_20261008.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_formal25_frozen_audit.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_historical_workspace_commands.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_artifact_successor.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_artifacts.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_05.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_06.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_07.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_08.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_09.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_10.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_11.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_12.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_13.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_14.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_15.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_16.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_17.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_18.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_19.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_20.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_cache_successor_21.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_configuration.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_current_entry_56673.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_current_entry_57416.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_host_preparation.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_observer_security.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_preflight_successor.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_private_evidence.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_readiness_preconditions.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_readiness_resource_policy.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_refresh_host_chain.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor06_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor07_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor08_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor09_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor10_integration.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor10_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor11_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor11_integration.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor11_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor12_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor12_integration.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor12_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor13_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor13_integration.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor13_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor13_runner.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor14_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor14_integration.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor14_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor14_runner.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor15_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor15_integration.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor15_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor15_runner.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor16_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor16_integration.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor16_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor16_runner.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor17_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor17_integration.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor17_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor17_runner.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor18_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor18_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor18_runner.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor19_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor19_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor19_runner.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor20_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor20_routes.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor20_runner.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor21_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor22_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor23_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor24_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor25_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor29_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor30_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor31_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_successor32_formal.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_task7a_transitions.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_task7b_transitions.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_workspace_hook_trust.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_workspace_migration.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_writer_lock_06.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_writer_lock_12.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p25_writer_lock_17.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26_capture_timeout.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26a_workload.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26c_host_runner.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26c_native_history.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26d_concurrent_hooks.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26d_context_limit_contract.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26d_installed_soak.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26d_inventory_evidence.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26d_requalification.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26d_runner.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_p26d_soak_availability.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_portable_bundle.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_project_config.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_simulation_script.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    },
+    {
+      "file": "tests/test_user_prompt_context_verifier.py",
+      "reason": "historical machine-bound certification/configuration or acceptance-runner tooling; retained unchanged in original repository; NOT_RUN in public suite"
+    }
+  ],
+  "archived_nodes": [
+    {
+      "node": "test_hook_memory_integration.py::test_real_hook_files_remain_at_frozen_hashes",
+      "reason": "local acceptance runner / frozen machine files or obsolete internal README contract; NOT_RUN, not PASS"
+    },
+    {
+      "node": "test_memory_cli.py::test_readme_documents_phase1b_operator_contract",
+      "reason": "local acceptance runner / frozen machine files or obsolete internal README contract; NOT_RUN, not PASS"
+    },
+    {
+      "node": "test_p26b_prompt.py::test_installed_prompt_runner_retains_real_job_capture_and_source_identity",
+      "reason": "local acceptance runner / frozen machine files or obsolete internal README contract; NOT_RUN, not PASS"
+    },
+    {
+      "node": "test_p26b_prompt.py::test_prompt_parent_job_creation_failure_is_recorded_without_a_false_capture",
+      "reason": "local acceptance runner / frozen machine files or obsolete internal README contract; NOT_RUN, not PASS"
+    },
+    {
+      "node": "test_p26c_selected_host.py::test_selected_host_real_installed_entry_keeps_physical_binding_after_migration",
+      "reason": "local acceptance runner / frozen machine files or obsolete internal README contract; NOT_RUN, not PASS"
+    },
+    {
+      "node": "test_p26c_selected_host.py::test_host_runner_binds_implementation_from_real_committed_manifest",
+      "reason": "local acceptance runner / frozen machine files or obsolete internal README contract; NOT_RUN, not PASS"
+    },
+    {
+      "node": "test_p26c_selected_host.py::test_selected_host_windows_definition_runs_real_entry_through_powershell",
+      "reason": "local acceptance runner / frozen machine files or obsolete internal README contract; NOT_RUN, not PASS"
+    },
+    {
+      "node": "test_p26d_compact.py::test_installed_entry_compact_cycle_uses_existing_lifecycle",
+      "reason": "local acceptance runner / frozen machine files or obsolete internal README contract; NOT_RUN, not PASS"
+    }
+  ],
+  "adapted_public_tests": [
+    {
+      "file": "tests/test_retrieval_isolation.py",
+      "reason": "Replace developer project's frozen Hook-file hashes with the public no-registered-Hook assertion; canonical schema isolation assertions retained."
+    },
+    {
+      "file": "tests/test_package_smoke.py",
+      "reason": "Assert explicit Alpha version 0.1.0a1 instead of private baseline 0.1.0."
+    }
+  ],
+  "policy": "Not exported / not run does not mean PASS. Original source, tests, outcomes and full history are preserved."
+}

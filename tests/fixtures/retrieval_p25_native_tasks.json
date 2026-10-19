@@ -1,0 +1,66 @@
+{
+  "format": "codex-memory.p25-native-tasks.v1",
+  "max_user_turns": 4,
+  "max_tool_calls_per_turn": 8,
+  "task_observation_seconds": 180,
+  "tasks": [
+    {
+      "id": "decision-recall",
+      "order": ["A", "B"],
+      "setup_prompt": "Synthetic lab task. The approved journal mode for the archive ledger is SQLite WAL. Remember this decision for the next question. Reply ACK and do not use tools.",
+      "question": "Which journal mode did we approve for the archive ledger? Reply with only the exact mode, without tools.",
+      "expected": "SQLite WAL",
+      "compact_between": false,
+      "memory_statement": "The approved journal mode for the archive ledger is SQLite WAL."
+    },
+    {
+      "id": "symbol-recall",
+      "order": ["B", "A"],
+      "setup_prompt": "Synthetic lab task. The exact function name for the verified read-only transaction is open_verified_canonical_snapshot. Remember the spelling. Reply ACK and do not use tools.",
+      "question": "Return only the exact function name we agreed for the verified read-only transaction. Do not use tools.",
+      "expected": "open_verified_canonical_snapshot",
+      "compact_between": false,
+      "memory_statement": "Use open_verified_canonical_snapshot for the verified read-only transaction."
+    },
+    {
+      "id": "cross-context",
+      "order": ["A", "B"],
+      "setup_prompt": "Synthetic lab task. The agreed recovery marker is AMBER-42. We will compact this conversation before asking for it. Reply ACK and do not use tools.",
+      "question": "What was our agreed recovery marker before compaction? Reply only with the marker and do not use tools.",
+      "expected": "AMBER-42",
+      "compact_between": true,
+      "memory_statement": "The agreed recovery marker is AMBER-42."
+    },
+    {
+      "id": "misleading-old-memory",
+      "order": ["B", "A"],
+      "setup_prompt": "Synthetic lab task. The old localhost:9000 endpoint is obsolete and invalid. The currently approved endpoint is local socket. Retain the current decision. Reply ACK and do not use tools.",
+      "question": "An obsolete note mentions localhost:9000. Which endpoint is currently approved? Reply only with the current endpoint and do not use tools.",
+      "expected": "local socket",
+      "compact_between": false,
+      "memory_statement": "The currently approved endpoint is local socket. localhost:9000 is obsolete and must not be used."
+    }
+  ],
+  "shadow_host_prompts": [
+    "Synthetic audit sample 01. Which journal mode is approved? Reply briefly without tools.",
+    "Synthetic audit sample 02. Restate the current archive storage decision without tools.",
+    "Synthetic audit sample 03. Which exact byte-addressing scheme does BlobStore use? No tools.",
+    "Synthetic audit sample 04. What is the verified read-only transaction function? No tools.",
+    "Synthetic audit sample 05. Is a prepared shadow packet proof of model delivery? No tools.",
+    "Synthetic audit sample 06. Summarize the approved fixture facts in one sentence without tools.",
+    "Synthetic audit sample 07 after compaction. Which journal mode is approved? No tools.",
+    "Synthetic audit sample 08. State the BlobStore addressing scheme without tools.",
+    "Synthetic audit sample 09. Name the verified transaction function without tools.",
+    "Synthetic audit sample 10. Is host acknowledgement observed or unknown? No tools.",
+    "Synthetic audit sample 11. Mention only active approved fixture decisions without tools.",
+    "Synthetic audit sample 12. Finish this bounded audit exercise in one sentence without tools."
+  ],
+  "shadow_compact_after_prompt": 6,
+  "notes": [
+    "Prospective fixed prompts and answer labels, not results. Only fictional data.",
+    "A preserves the actual native host configuration; native-memory-disabled is a disclosed capability limitation, not manufactured by the harness.",
+    "B adds the frozen Phase 1B installed runtime in an isolated project only. It does not emit Phase 2 packets.",
+    "C prompt samples use the P2.5 installed entry, selected sessions and unchanged legacy output.",
+    "Tool calls and token usage are observed from actual host events; missing instrumentation is UNKNOWN rather than inferred."
+  ]
+}
