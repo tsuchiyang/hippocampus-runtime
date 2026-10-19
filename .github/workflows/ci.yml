@@ -42,7 +42,7 @@ jobs:
       - name: Build licensed wheel and source distribution
         run: uv build --no-sources
       - name: Record build artifact SHA-256 in the job log
-        run: uv run --no-sync python -c "import hashlib; from pathlib import Path; files = sorted(Path('dist').iterdir()); assert len(files) == 2; [print(hashlib.sha256(p.read_bytes()).hexdigest(), p.name) for p in files]"
+        run: uv run --no-sync python -c "import hashlib; from pathlib import Path; files = [Path('dist') / name for name in ('codex_memory_runtime-0.1.0a1-py3-none-any.whl', 'codex_memory_runtime-0.1.0a1.tar.gz')]; [print(hashlib.sha256(p.read_bytes()).hexdigest(), p.name) for p in files]"
       - name: Replace editable package with built wheel (offline)
         run: uv pip install --reinstall --no-index --no-deps --link-mode=copy dist/codex_memory_runtime-0.1.0a1-py3-none-any.whl
       - name: Require the actual installed wheel, not checkout imports
