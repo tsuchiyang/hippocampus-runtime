@@ -6,7 +6,8 @@
 
 实验性 Alpha：给 Codex 提供存放在本地的结构化记忆与压缩恢复线索，
 不是无限上下文，也不是 OpenAI 官方产品。安装不会注册 Hook，不默认开启 dense 或 active。
-当前 Windows 完整 CI 与 Linux 限定核心 CI 已通过，但尚未公开发布；结果及验证边界见[已知问题与当前证据](docs/KNOWN_ISSUES.md)。
+Hippocampus Runtime 现已在 GitHub 公开开源，采用 MIT 许可证，当前定位仍为实验性 Alpha，而非生产稳定版。
+Windows 完整 CI 与 Linux 限定核心 CI 已通过；结果及验证边界见[已知问题与当前证据](docs/KNOWN_ISSUES.md)。
 
 ## 名称与兼容性
 
