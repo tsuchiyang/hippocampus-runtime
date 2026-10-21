@@ -1,8 +1,12 @@
-# Known issues before publication
+# Known issues and evidence boundaries
 
-This is a locally prepared Alpha, not a published or production-certified release.
+Hippocampus Runtime is publicly available on
+[GitHub](https://github.com/tsuchiyang/hippocampus-runtime) under the MIT license.
+It remains an **experimental Alpha**, not a production-certified release.
+Public source availability is separate from creating a tagged GitHub Release,
+publishing to PyPI or certifying a particular host/model integration.
 
-## Current Alpha candidate: private hosted checks passed
+## Current Alpha baseline: hosted checks passed
 
 Frozen local candidate `1b5d187eb4f37fb0219ddb61c0f5128f7b782363` and private
 GitHub commit `6b32f2a3a8acddb6f8b2ef658520fff9a9e2a67a` share the exact Git tree
@@ -23,16 +27,20 @@ Functional classification fixtures explicitly control their local logical time;
 physical deadline/Hook tests retain real clocks and original assertions.
 Later documentation-only commits do not constitute another full-suite run.
 
-This supports technical preparation of an **experimental open-source Alpha**,
-not production, new real-host/model acceptance, universal latency or platform
-security certification. Public visibility/push, release/tag and repository
-metadata disclosure remain separate owner decisions. Dense/active are not
-enabled by default. Preserved historical failures below are not rewritten.
+These checks ran while the repository was private. The owner subsequently
+approved public experimental-Alpha publication; the same repository and run are
+now public. This supports the bounded **experimental open-source Alpha**, not
+production, new real-host/model acceptance, universal latency or platform
+security certification. Dense/active are not enabled by default. Preserved
+historical failures below are not rewritten.
 
 ## Preserved implementation and earlier hosted failures
 
 The progression below retains each earlier candidate's actual outcome. Its
 then-current/pending labels refer to those snapshots, not the final run above.
+In particular, historical statements such as "publication stays on hold" or
+"unpublished Alpha candidate" describe their original decision points; they do
+not describe the repository's current public visibility.
 
 Implementation `83d1236f1072a2425d1ec6af103111f6c4ef553b` passed the complete
 public Windows suite: **1770 passed, 0 failed, 0 errors, 0 skipped**, 263.27
@@ -262,9 +270,10 @@ the new successful result does not overwrite them.
   absence, legal ownership or universal safety.
 - Cooperative deadlines do not prove hard interruption of arbitrary operating
   system/filesystem I/O, or a universal latency guarantee under machine stalls.
-- SPDX MIT metadata and contributor attribution are prepared. The owner confirmed
-  independent personal development without known restricted external source;
-  final public publication remains a separate owner decision.
+- SPDX MIT metadata and contributor attribution are included. The owner confirmed
+  independent personal development without known restricted external source and
+  approved public MIT experimental-Alpha publication. This is not a claim of
+  exhaustive legal review or production certification.
 
 Documentation added after the tested implementation does not constitute another
 full-suite execution. See [testing scope](TESTING.md) and [provenance](PROVENANCE.md).

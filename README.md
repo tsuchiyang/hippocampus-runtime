@@ -2,7 +2,9 @@
 
 Local memory and context recovery for coding agents, currently targeting Codex.
 
-[简体中文](README.zh-CN.md) · [Installation and operations](docs/OPERATIONS.md) · [Testing](docs/TESTING.md)
+[![Alpha checks](https://github.com/tsuchiyang/hippocampus-runtime/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tsuchiyang/hippocampus-runtime/actions/workflows/ci.yml)
+
+[简体中文](README.zh-CN.md) · [Quickstart without Hooks](docs/QUICKSTART.md) · [Installation and operations](docs/OPERATIONS.md) · [Testing](docs/TESTING.md)
 
 **Experimental Alpha — local-first memory, not a promise of production reliability.**
 Hippocampus Runtime is now open source on GitHub under the MIT license.
@@ -11,6 +13,11 @@ The Windows full-suite and limited Ubuntu local-core CI checks have passed. See
 No Hook is registered by installing this package. Dense retrieval and active
 injection are not enabled by default. This is an independent community project,
 not an official OpenAI product.
+
+<a href="docs/DEMO.md"><img src="docs/media/night-shift-preview.gif" alt="Night Shift: an original pixel-art story about carrying project memory between context windows" width="270"></a>
+
+[Night Shift — animated preview and film notes](docs/DEMO.md). Fictional product
+story, **not a recording of a real Codex session or evidence of model recall**.
 
 ## Name and compatibility
 
@@ -67,7 +74,9 @@ claimed; do not assume a package of the same name on an index is this release.
 ## Try it without enabling Hooks
 
 Use a disposable Git project, run the installed entry by its full path, and read
-the [command reference](docs/CLI.md) before writing records. This Alpha preserves
+the [copy-and-run quickstart](docs/QUICKSTART.md) to create, activate and retrieve
+one synthetic memory without registering Hooks or calling a model. See also the
+[command reference](docs/CLI.md). This Alpha preserves
 the existing strict CLI: `--help`/`--version` are not implemented. Command families include:
 
 ```text

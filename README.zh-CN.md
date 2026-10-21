@@ -2,12 +2,18 @@
 
 面向编程智能体的本地记忆与上下文恢复系统，目前主要对接 Codex。
 
-[English](README.md) · [安装、备份与停用](docs/OPERATIONS.md) · [测试范围](docs/TESTING.md)
+[![Alpha checks](https://github.com/tsuchiyang/hippocampus-runtime/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tsuchiyang/hippocampus-runtime/actions/workflows/ci.yml)
+
+[English](README.md) · [无 Hook 快速试用](docs/QUICKSTART.md) · [安装、备份与停用](docs/OPERATIONS.md) · [测试范围](docs/TESTING.md)
 
 实验性 Alpha：给 Codex 提供存放在本地的结构化记忆与压缩恢复线索，
 不是无限上下文，也不是 OpenAI 官方产品。安装不会注册 Hook，不默认开启 dense 或 active。
 Hippocampus Runtime 现已在 GitHub 公开开源，采用 MIT 许可证，当前定位仍为实验性 Alpha，而非生产稳定版。
 Windows 完整 CI 与 Linux 限定核心 CI 已通过；结果及验证边界见[已知问题与当前证据](docs/KNOWN_ISSUES.md)。
+
+<a href="docs/DEMO.md"><img src="docs/media/night-shift-preview.gif" alt="《夜班》：把项目记忆带过上下文窗口的原创像素剧情短片" width="270"></a>
+
+[《夜班》动画预览与成片说明](docs/DEMO.md)。这是剧情示意，**不是实际 Codex 会话录屏，也不作为模型已经读取记忆的证据**。
 
 ## 名称与兼容性
 
@@ -54,6 +60,7 @@ Linux 使用 `python3.12 -m venv .venv`、`.venv/bin/python -m pip install .`。
 
 先在独立、非敏感 Git 项目试用，用安装入口的绝对路径运行命令，
 不要复制其他机器的 `.venv`、私人记忆数据库或 Hook 配置。
+可以直接照着[无 Hook 快速试用](docs/QUICKSTART.md)，完成一条合成记忆的创建、激活与检索；不注册 Hook，不调用模型。
 命令包括 `record`、`ledger verify`、`memory capture/evidence/pending/recall/review/expire`、
 `retrieval init/status/rebuild/verify/query`。先读 [命令手册](docs/CLI.md)。
 此 Alpha 保留原有严格 CLI，尚未实现 `--help`/`--version`；上面的 Python 命令用于查看安装版本。
